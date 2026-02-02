@@ -1,0 +1,188 @@
+CREATE DATABASE DriveManagementDB;
+GO
+
+USE DriveManagementDB;
+GO
+
+
+CREATE TABLE roles (
+    role_id INT IDENTITY(1,1) PRIMARY KEY,
+    role_name VARCHAR(20) UNIQUE -- SuperAdmin, HR, Mentor, Panel
+);
+
+CREATE TABLE users (
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    full_name VARCHAR(100),
+    email VARCHAR(150) UNIQUE,
+    phone VARCHAR(32) UNIQUE,
+    is_active BIT NOT NULL DEFAULT 1,
+    role_id INT NOT NULL,
+    created_date DATETIME DEFAULT GETDATE(),
+    updated_date DATETIME NULL,
+    password_hash VARCHAR(MAX) NULL
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON UPDATE CASCADE ON DELETE NO ACTION,
+);
+
+CREATE TABLE user_permissions (
+    user_id INT NOT NULL,
+    action VARCHAR(20) NOT NULL,
+    [view] BIT NOT NULL,
+    [add] BIT NOT NULL,
+    [update] BIT NOT NULL,
+    [delete] BIT NOT NULL,
+    CONSTRAINT PK_UserId_Action PRIMARY KEY (user_id, action),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE requests (
+    request_id INT IDENTITY(1,1) PRIMARY KEY,
+    request_type VARCHAR(20) NOT NULL, -- Add Role, Add Action
+    sub_type VARCHAR(30) NOT NULL,  -- HR, Mentor, Panel, Drive-Add, Drive-View, Drive-Delete,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending', -- Pending, Approved, Rejected
+    approved_by INT NULL, 
+    approved_date DATETIME NULL,
+    requested_by INT NOT NULL,
+    requested_date DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (approved_by) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE SET NULL,
+    FOREIGN KEY (requested_by) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+);
+
+CREATE TABLE drives (
+    drive_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_name VARCHAR(200) NOT NULL UNIQUE,
+    drive_date DATETIME NOT NULL,
+    technical_rounds INT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'InProposal', -- InProposal, Started, Halted, Completed
+    created_by INT NOT NULL,
+    created_date DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE NO ACTION
+);
+
+CREATE TABLE drive_members (
+    drive_member_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_id INT NOT NULL,
+    user_id INT NOT NULL,
+    role_id INT NOT NULL,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    CONSTRAINT UQ_DriveId_UserId UNIQUE (drive_id, user_id)
+);
+
+CREATE TABLE drive_role_configuration (
+    config_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_id INT NOT NULL,
+    role_id INT NOT NULL,
+    allow_panel_reassign BIT NOT NULL DEFAULT 0,
+    can_view_feedback BIT NOT NULL DEFAULT 0,
+    allow_bulk_upload BIT NOT NULL DEFAULT 0,
+    can_edit_submitted_feedback BIT NOT NULL DEFAULT 0,
+    require_approval_for_reassignment BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    CONSTRAINT UQ_DriveId_RoleId UNIQUE (drive_id, role_id)
+);
+
+CREATE TABLE panel_visibility_settings (
+    visibility_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_id INT NOT NULL UNIQUE,
+    show_phone BIT NOT NULL DEFAULT 1,
+    show_email BIT NOT NULL DEFAULT 1,
+    show_previous_company BIT NOT NULL DEFAULT 1,
+    show_resume BIT NOT NULL DEFAULT 1,
+    show_college BIT NOT NULL DEFAULT 1,
+    show_address BIT NOT NULL DEFAULT 1,
+    show_linkedin BIT NOT NULL DEFAULT 1,
+    show_github BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE notification_settings (
+    notification_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_id INT NOT NULL UNIQUE,
+    email_notification_enabled BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE feedback_configuration (
+    feedback_config_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_id INT NOT NULL UNIQUE,
+    overall_rating_required BIT NOT NULL DEFAULT 1,
+    technical_skill_required BIT NOT NULL DEFAULT 1,
+    communication_required BIT NOT NULL DEFAULT 1,
+    problem_solving_required BIT NOT NULL DEFAULT 1,
+    recommendation_required BIT NOT NULL DEFAULT 1,
+    overall_feedback_required BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE candidates (
+    candidate_id INT IDENTITY(1,1) PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    phone VARCHAR(32) NOT NULL UNIQUE,
+    address VARCHAR(500) NULL,
+    college VARCHAR(200) NULL,
+    previous_company VARCHAR(200) NULL,
+    experience_level VARCHAR(20) NOT NULL DEFAULT 'Fresher', -- Fresher, Intermediate, Experienced
+    tech_stack VARCHAR(MAX) NULL,
+    resume_url VARCHAR(500) NULL,
+    linkedin_url VARCHAR(500) NULL,
+    github_url VARCHAR(500) NULL,
+    created_date DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE drive_candidates (
+    drive_candidate_id INT IDENTITY(1,1) PRIMARY KEY,
+    candidate_id INT NOT NULL,
+    drive_id INT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',  -- Pending, Selected, Rejected
+    status_set_by INT NULL,
+    created_date DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (candidate_id) REFERENCES candidates(candidate_id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (status_set_by) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    CONSTRAINT UQ_CandidateId_DriveId UNIQUE (candidate_id, drive_id)
+);
+
+CREATE TABLE candidate_reassignments (
+    reassign_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_candidate_id INT NOT NULL,
+    previous_user_id INT NOT NULL,
+    new_user_id INT NOT NULL,
+    require_approval BIT NOT NULL,
+    approved_by INT NULL,
+    approved_date DATETIME NULL,
+    requested_by INT NOT NULL,
+    requested_date DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (drive_candidate_id) REFERENCES drive_candidates(drive_candidate_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (previous_user_id) REFERENCES drive_members(drive_member_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (new_user_id) REFERENCES drive_members(drive_member_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (requested_by) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (approved_by) REFERENCES users(user_id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE feedbacks (
+    feedback_id INT IDENTITY(1,1) PRIMARY KEY,
+    overall_rating INT NOT NULL,
+    technical_skill INT NULL,
+    communication INT NULL,
+    problem_solving INT NULL,
+    overall_feedback TEXT,
+    recommendation VARCHAR(20) NOT NULL DEFAULT 'NA', -- NA, Hire, May be, No Hire
+    submitted_date DATETIME DEFAULT GETDATE(),
+);
+
+CREATE TABLE rounds (
+    round_id INT IDENTITY(1,1) PRIMARY KEY,
+    drive_candidate_id INT NOT NULL,
+    interviewer_id INT NOT NULL,
+    round_type VARCHAR(20) DEFAULT 'Tech1', -- Hr, Tech1, Tech2
+    status VARCHAR(20) DEFAULT 'Scheduled', -- Scheduled, OnProcess, Completed, Skipped
+    result VARCHAR(20) DEFAULT 'Pending', -- Pending, Selected, Rejected
+    feedback_id INT NULL,
+    FOREIGN KEY (drive_candidate_id) REFERENCES drive_candidates(drive_candidate_id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    FOREIGN KEY (interviewer_id) REFERENCES drive_members(drive_member_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (feedback_id) REFERENCES feedbacks(feedback_id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    CONSTRAINT UQ_DriveCandidateId_PanelId UNIQUE (drive_candidate_id, interviewer_id)
+);

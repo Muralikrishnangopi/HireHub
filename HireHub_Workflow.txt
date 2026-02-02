@@ -1,0 +1,253 @@
+SUPER ADMIN (only one)
+	- Add User(Hr, Panel, Mentor) to the System.
+	- Activate or Deactivate Users
+	- Add Roles to Existing Users
+	- Update User Information
+
+ADMIN (HR)
+	- Create New Drive
+	- Add Candidates to Drive After Drive Created
+	- Approve Reassign Request (If Received)
+	- View Feedbacks
+	- Select/Reject Candidate
+	- Bulk Upload After Drive Completed
+	- Close Drive
+
+MENTOR
+	- Move Candidate to next Round 
+	- Reassign candidates (If Configured)
+
+PANEL
+	- Provide Feedback after Interviewed
+	- Reassign candidates (If Configured)
+
+HR
+	- View Feedbacks
+	- Select/Reject Candidate
+	- Reassign candidates (If Configured)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE NEW DRIVE PAGE
+
+	- Drive Name
+
+	- Drive Date
+
+	- Number of Techinical Rounds 	(Drop Down [1,2])
+
+	- Coordination Team
+		1. Technical Persons(Panel members) to add for this drive
+		2. Mentors to add for this drive
+		3. Hr to add for this drive
+
+	- Role Configuration
+		> Hr
+			1. Allow Bulk Upload Candidate			(Enable button)
+			2. Can Edit Submitted Feedback			(Enable button)
+			3. Allow Candidate Reassignment			(Enable button)
+			4. Require Approval for Reassignments		(Enable button)
+		> Panel
+			1. Can Edit Submitted Feedback			(Enable button)
+			2. Allow Candidate Reassignment			(Enable button)
+			3. Require Approval for Reassignments		(Enable button)
+		> Mentor
+			1. Can view Interview Feedback			(Enable button)
+			2. Allow Candidate Reassignment			(Enable button)
+			3. Require Approval for Reassignments		(Enable button)
+
+	- Panel Visibility Settings
+		1. Candidate Phone Number	(Enable button)
+		2. Candidate Email Address	(Enable button) 
+		3. Previous Company		(Enable button)
+		4. Resume/CV			(Enable button)	
+		5. College/University		(Enable button)
+		6. Residential Address		(Enable button)
+		7. LinkedIn Profile		(Enable button)
+		8. GitHub Profile		(Enable button)
+
+	- Notification & Communications
+		1. Send Email Notification 	(Enable button)
+
+	- Feedback Configuration 
+		1. Overall Rating 		(Required button, Enable button)
+		2. Technical Skill Assessment   (Required button, Enable button)
+		3. Communication Skill 		(Required button, Enable button)
+		4. Problem Solving Skill 	(Required button, Enable button)
+		5. Recommendation 		(Required button, Enable button)
+		6. Overall Feedback 		(Required button, Enable button)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DATABASE SCHEMA
+
+- USER MANAGEMENT
+
+Roles (
+    RoleId INT PK IDENTITY,
+    RoleName VARCHAR(20) UNIQUE  -- SuperAdmin, HR, Mentor, Panel
+)
+
+Users (
+    UserId INT PK IDENTITY,
+    FullName VARCHAR(100),
+    Email VARCHAR(150) UNIQUE,
+    Phone VARCHAR(32) UNIQUE,
+    IsActive BIT DEFAULT 1,
+    RoleId INT FK → Roles.RoleId,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    UpdatedDate DATETIME,
+    PasswordHash VARCHAR(MAX)
+)
+
+//UserRoles (
+//    UserRoleId INT PK IDENTITY,
+//    UserId INT FK → Users.UserId,
+//    RoleId INT FK → Roles.RoleId
+//)
+
+UserPermissions (
+    UserId INT FK → Users.UserId,
+    Action VARCHAR(20) NOT NULL,
+    View BIT NOT NULL,
+    Add BIT NOT NULL,
+    Update BIT NOT NULL,
+    DELETE BIT NOT NULL
+)
+
+Requests (
+    RequestId INT PK IDENTITY,
+    RequestType VARCHAR(20)  -- Add Role, Add Action
+    SubType VARCHAR(30) -- HR, Mentor, Panel, Drive-Add, Drive-View, Drive-Delete,
+    Status VARCHAR(20) DEFAULT 'Pending' -- Pending, Approved, Rejected
+    ApprovedBy INT NULL FK → Users.UserId,
+    ApprovedDate DATETIME NULL,
+    RequestedBy INT NOT NULL FK → Users.UserId,
+    RequestedDate DATETIME DEFAULT GETDATE(),
+
+)
+
+- DRIVE MANAGEMENT
+
+Drives (
+    DriveId INT PK IDENTITY,
+    DriveName VARCHAR(200) UNIQUE,
+    DriveDate DATETIME,
+    TechnicalRounds INT NOT NULL,
+    CreatedBy INT NOT NULL FK → Users.UserId,
+    Status VARCHAR(20) DEFAULT 'InProposal',   -- InProposal, Started, Halted, Completed
+    CreatedDate DATETIME DEFAULT GETDATE()
+)
+
+DriveMembers (
+    DriveMemberId INT PK IDENTITY,
+    DriveId INT FK → Drives.DriveId,
+    UserId INT FK → Users.UserId,
+    RoleId INT FK → Roles.RoleId
+)
+
+- DRIVE CONFIGURATION
+
+DriveRoleConfiguration (
+    ConfigId INT PK IDENTITY,
+    DriveId INT FK → Drives.DriveId,
+    RoleId INT FK → Roles.RoleId,
+    AllowPanelReassign BIT,
+    CanViewFeedback BIT,
+    AllowBulkUpload BIT,
+    CanEditSubmittedFeedback BIT,
+    RequireApprovalForReassignment BIT
+)
+
+PanelVisibilitySettings (
+    VisibilityId INT PK IDENTITY,
+    DriveId INT NOT NULL UNIQUE FK → Drives.DriveId,
+    ShowPhone BIT,
+    ShowEmail BIT,
+    ShowPreviousCompany BIT,
+    ShowResume BIT,
+    ShowCollege BIT,
+    ShowAddress BIT,
+    ShowLinkedIn BIT,
+    ShowGitHub BIT
+)
+
+NotificationSettings (
+    NotificationId INT PK IDENTITY,
+    DriveId INT NOT NULL UNIQUE FK → Drives.DriveId,
+    EmailNotificationEnabled BIT
+)
+
+FeedbackConfiguration (
+    FeedbackConfigId INT PK IDENTITY,
+    DriveId INT NOT NULL UNIQUE FK → Drives.DriveId,
+    OverallRatingRequired BIT,
+    TechnicalSkillRequired BIT,
+    CommunicationRequired BIT,
+    ProblemSolvingRequired BIT,
+    RecommendationRequired BIT,
+    OverallFeedbackRequired BIT
+)
+
+- CANDIDATE MANAGEMENT
+
+Candidates (
+    CandidateId INT PK IDENTITY,
+    FullName VARCHAR(100) NOT NULL,
+    Email VARCHAR(150) NOT NULL UNIQUE,
+    Phone VARCHAR(32) NOT NULL UNIQUE,
+    Address VARCHAR(500) NULL,
+    College VARCHAR(200) NULL,
+    PreviousCompany VARCHAR(200) NULL,
+    ExperienceLevel VARCHAR(20) NOT NULL,
+    TechStack VARCHAR(MAX) NULL,
+    ResumeUrl VARCHAR(500) NULL,
+    LinkedInUrl VARCHAR(500) NULL,
+    GitHubUrl VARCHAR(500) NULL,
+    CreatedDate DATETIME DEFAULT GETDATE()
+)
+
+DriveCandidates (
+    DriveCandidateId INT PK IDENTITY,
+    CandidateId INT FK → Candidates.CandidateId,
+    DriveId INT FK → Drives.DriveId,
+    Status VARCHAR(20) DEFAULT 'Pending',  -- Pending, Selected, Rejected
+    StatusSetBy INT NULL FK → Users.UserId,
+    CreatedDate DATETIME DEFAULT GETDATE()
+)
+
+CandidateReassignments (
+    ReassignId INT PK IDENTITY,
+    DriveCandidateId INT NOT NULL FK → DriveCandidates.DriveCandidateId,
+    PreviousUserId INT NOT NULL FK → DriveMembers.DriveMemberId,
+    NewUserId INT NOT NULL FK → DriveMembers.DriveMemberId,
+    RequestedBy INT NOT NULL FK → Users.UserId,
+    RequireApproval BIT NOT NULL,
+    ApprovedBy INT FK → Users.UserId NULL,
+    ApprovedDate DATETIME NULL,
+    RequestedDate DATETIME DEFAULT GETDATE()
+)
+
+- INTERVIEWS & FEEDBACK
+
+Feedbacks (
+    FeedbackId INT PK IDENTITY,
+    OverallRating INT NOT NULL,
+    TechnicalSkill VARCHAR(500),
+    Communication VARCHAR(500),
+    ProblemSolving VARCHAR(500),
+    OverallFeedback TEXT,
+    Recommendation VARCHAR(20) NOT NULL, -- NA, Hire, May be, No Hire
+    SubmittedDate DATETIME DEFAULT GETDATE()
+)
+
+Rounds (
+    RoundId INT PK IDENTITY,
+    DriveCandidateId INT FK → DriveCandidates.DriveCandidateId,
+    InterviewerId INT FK → DriveMembers.DriveMemberId,
+    RoundType VARCHAR(20),  -- Hr, Tech 1, Tech 2
+    Status VARCHAR(20) DEFAULT 'Scheduled',  -- Scheduled, OnProcess, Completed, Skipped
+    Result VARCHAR(20) DEFAULT 'Pending',  -- Pending, Selected, Rejected
+    FeedbackId INT NULL FK → Feedbacks.FeedbackId,
+)

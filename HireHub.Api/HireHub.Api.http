@@ -1,0 +1,6 @@
+@HireHub.Api_HostAddress = http://localhost:5023
+
+GET {{HireHub.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
