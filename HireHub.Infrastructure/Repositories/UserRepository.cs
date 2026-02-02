@@ -23,9 +23,12 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _context.Users.FirstOrDefaultAsync(e => e.Email == emailId, cancellationToken);
     }
 
-    public async Task<int> CountUsersAsync(CancellationToken cancellationToken = default)
+    public async Task<int> CountUsersAsync(bool? isActive, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.CountAsync(cancellationToken);
+        var query = _context.Users.Select(e => e);
+        if (isActive != null)
+            query = query.Where(u => u.IsActive == isActive);
+        return await query.CountAsync(cancellationToken);
     }
 
     public async Task<int> CountUsersByRoleAsync(UserRole role, CancellationToken cancellationToken = default)

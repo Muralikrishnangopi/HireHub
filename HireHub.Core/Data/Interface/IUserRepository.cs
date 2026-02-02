@@ -10,7 +10,7 @@ public interface IUserRepository : IGenericRepository<User>
 
     Task<User?> GetByEmailAsync(string emailId, CancellationToken cancellationToken = default);
 
-    Task<int> CountUsersAsync(CancellationToken cancellationToken = default);
+    Task<int> CountUsersAsync(bool? isActive, CancellationToken cancellationToken = default);
 
     Task<int> CountUsersByRoleAsync(UserRole role, CancellationToken cancellationToken = default);
 

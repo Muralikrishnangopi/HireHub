@@ -9,6 +9,7 @@ public interface IDriveRepository : IGenericRepository<Drive>
 {
     #region DQL
 
+    Task<int> CountDrivesAsync(DriveStatus? driveStatus, CancellationToken cancellationToken = default);
     Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default);
 
     Task<bool> IsUserAssignedInAnyActiveDriveOnDateAsync(int userId, DateTime driveDate, CancellationToken cancellationToken = default);

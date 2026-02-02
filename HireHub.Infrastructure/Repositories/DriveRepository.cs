@@ -19,6 +19,14 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
 
     #region DQL
 
+    public async Task<int> CountDrivesAsync(DriveStatus? driveStatus, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Drives.Select(e => e);
+        if (driveStatus != null)
+            query = query.Where(d => d.Status == driveStatus);
+        return await query.CountAsync(cancellationToken);
+    }
+
     public async Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.Drives.Include(e => e.Creator).Select(u => u);

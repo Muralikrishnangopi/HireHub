@@ -10,17 +10,25 @@ public class Response<T> : BaseResponse where T : class
 public class AdminDashboardDetails
 {
     public int TotalUsers { get; set; }
-    public int TotalCandidates { get; set; }
+    public int ActiveUsers { get; set; }
+    public int InactiveUsers { get; set; }
     public int TotalPanelMembers { get; set; }
     public int TotalMentors { get; set; }
     public int TotalHrs { get; set; }
+    public int TotalCandidates { get; set; }
+    public int TotalCandidatesHired { get; set; }
+    public int TotalCandidatesRejected { get; set; }
+    public int TotalDrives { get; set; }
+    public int ScheduledDrives { get; set; }
+    public int OngoingDrives { get; set; }
+    public int HaltedDrives { get; set; }
+    public int CompletedDrives { get; set; }
+    public int CancelledDrives { get; set; }
     public int TotalInterviews { get; set; }
     public int InterviewsScheduled { get; set; }
     public int InterviewsOnProcess { get; set; }
     public int InterviewsCompleted { get; set; }
     public int InterviewsSkipped { get; set; }
-    public int TotalCandidatesHired { get; set; }
-    public int TotalCandidatesRejected { get; set; }
 }
 
 public class UserDTO
