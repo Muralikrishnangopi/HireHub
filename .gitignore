@@ -1,0 +1,5 @@
+ECHO is on.
+*/bin/ 
+*/obj/ 
+.vs/ 
+*/.vs/ 
