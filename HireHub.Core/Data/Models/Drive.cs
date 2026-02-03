@@ -27,8 +27,6 @@ public class Drive : BaseEntity
     public NotificationSettings? NotificationSettings { get; set; }
     public FeedbackConfiguration? FeedbackConfiguration { get; set; }
     public ICollection<DriveCandidate> DriveCandidates { get; set; } = new List<DriveCandidate>();
-    public ICollection<Round> Rounds { get; set; } = new List<Round>();
-    public ICollection<Request> Requests { get; set; } = new List<Request>();
 }
 
 public enum DriveStatus

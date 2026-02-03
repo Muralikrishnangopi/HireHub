@@ -108,7 +108,6 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    [Obsolete]
     public async Task<Drive?> GetDriveWithCandidatesAsync(int driveId, CancellationToken cancellationToken = default)
     {
         return await _context.Drives
@@ -129,7 +128,6 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         return drive;
     }
 
-    [Obsolete]
     public async Task<List<DriveMember>> GetDriveMembersWithDetailsAsync(DriveMemberFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.DriveMembers
@@ -244,7 +242,6 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
             .ToListAsync(cancellationToken);
     }
 
-    [Obsolete]
     public async Task<List<DriveCandidate>> GetDriveCandidatesWithDetailsAsync(DriveCandidateFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.DriveCandidates

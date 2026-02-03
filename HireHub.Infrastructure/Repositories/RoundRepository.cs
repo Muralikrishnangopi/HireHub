@@ -27,7 +27,6 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
         return await query.CountAsync(cancellationToken);
     }
 
-    [Obsolete]
     public async Task<List<Round>> GetAllAsync(RoundFilter filter, CancellationToken cancellationToken = default)
     {
         var dQuery = _context.Drives.Select(e => e);
@@ -58,18 +57,7 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
                 .Take(pageSize);
         }
 
-        return await rQuery
-            .Select(e => new Round
-            {
-                RoundId = e.RoundId,
-                DriveCandidateId = e.DriveCandidateId,
-                InterviewerId = e.InterviewerId,
-                RoundType = e.RoundType,
-                Status = e.Status,
-                Result = e.Result,
-                FeedbackId = e.FeedbackId
-            })
-            .ToListAsync(cancellationToken);
+        return await rQuery.ToListAsync(cancellationToken);
     }
 
     public async Task<List<RoundDTO>> GetAllAsDtoAsync(RoundFilter filter, CancellationToken cancellationToken = default)
