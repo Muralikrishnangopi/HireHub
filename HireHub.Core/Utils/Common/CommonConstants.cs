@@ -31,6 +31,10 @@ public static class ResponseMessage
     public const string InvalidExperienceLevel = "Provided Candidate Experience Level is Invalid";
     public const string EmailOrPhoneAlreadyExist = "Email or Phone number already exist";
     public const string InvalidRole = "Provided Role is Invalid";
+    public const string NameShouldNotNull = "Name should not be Null";
+    public const string IsActiveShouldNotNull = "IsActive should not be Null";
+    public const string EmailShouldNotNull = "Email should not be Null";
+    public const string PhoneShouldNotNull = "Phone should not be Null";
     public const string ExcelFileEmpty = "Excel file is empty";
     public const string CellValueConvertionFailed = "Cell value convertion failed";
     public const string UpdatedSuccessfully = "Updated Successfully";
@@ -65,7 +69,7 @@ public static class ResponseMessage
     public const string CreatedDateCannotBeUpdated = "CreatedDate cannot be updated";
     public const string UpdatedDateCannotBeUpdated = "UpdatedDate cannot be updated";
     public const string TechStackShouldNotBeNull = "Tech stack is should not be null";
-    public const string TechStackMustBeList = "Tech stack must be List";
+    public const string TechStackMustBeList = "Tech stack must be Array of string";
     public const string InvalidCandidateId = "Invalid CandidateId";
     public const string DriveIdRequired = "DriveId is required";
     public const string InvalidDriveId = "Invalid DriveId";

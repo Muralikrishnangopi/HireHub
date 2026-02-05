@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using HireHub.Core.Data.Models;
 using HireHub.Core.Service;
 using HireHub.Core.Utils.Common;
 using HireHub.Core.Utils.UserProgram.Interface;
@@ -30,6 +31,18 @@ public class EditUserRequestValidator : AbstractValidator<JObject>
         RuleFor(x => x)
             .Custom((req, context) =>
             {
+                if (req.ContainsKey(JOPropertyName.Email) && string.IsNullOrWhiteSpace(req[JOPropertyName.Email]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.EmailShouldNotNull);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.Phone) && string.IsNullOrWhiteSpace(req[JOPropertyName.Phone]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.PhoneShouldNotNull);
+                    return;
+                }
+
                 var email = req[JOPropertyName.Email]?.ToString();
                 var phone = req[JOPropertyName.Phone]?.ToString();
                 var isAlreadyExist = (email != null || phone != null) ? 
@@ -44,8 +57,19 @@ public class EditUserRequestValidator : AbstractValidator<JObject>
                     return;
                 }
 
-                var roleName = req[JOPropertyName.RoleName]?.ToString();
-                if (roleName != null && !Options.RoleNames.Contains(roleName))
+                if (req.ContainsKey(JOPropertyName.FullName) && string.IsNullOrWhiteSpace(req[JOPropertyName.FullName]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.NameShouldNotNull);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.IsActive) && req[JOPropertyName.IsActive] == null)
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.IsActiveShouldNotNull);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.RoleName) && !Options.RoleNames.Contains(req[JOPropertyName.RoleName]!.ToString()))
                 {
                     context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRole);
                     return;

@@ -19,16 +19,21 @@ public class EditCandidateRequestValidator:AbstractValidator<JObject>
             .Must(x => !x.ContainsKey(JOPropertyName.CreatedDate))
             .WithMessage(ResponseMessage.CreatedDateCannotBeUpdated);
 
-        RuleFor(x => x[JOPropertyName.TechStack])
-            .NotNull().When(x => x.ContainsKey(JOPropertyName.TechStack))
-                .WithMessage(ResponseMessage.TechStackShouldNotBeNull)
-            .Must(x => x![JOPropertyName.TechStack]!.ToObject<List<string>>() != null)
-                .When(x => x.ContainsKey(JOPropertyName.TechStack))
-                .WithMessage(ResponseMessage.TechStackMustBeList);
-
         RuleFor(x => x)
             .Custom((req, context) =>
             {
+                if (req.ContainsKey(JOPropertyName.Email) && string.IsNullOrWhiteSpace(req[JOPropertyName.Email]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.EmailShouldNotNull);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.Phone) && string.IsNullOrWhiteSpace(req[JOPropertyName.Phone]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.PhoneShouldNotNull);
+                    return;
+                }
+
                 var email = req[JOPropertyName.Email]?.ToString();
                 var phone = req[JOPropertyName.Phone]?.ToString();
                 var isAlreadyExist = (email != null || phone != null) ?
@@ -43,10 +48,27 @@ public class EditCandidateRequestValidator:AbstractValidator<JObject>
                     return;
                 }
 
-                var experienceLevel = req[JOPropertyName.ExperienceLevel]?.ToString();
-                if (experienceLevel != null && !Options.ExperienceLevels.Contains(experienceLevel))
+                if (req.ContainsKey(JOPropertyName.FullName) && string.IsNullOrWhiteSpace(req[JOPropertyName.FullName]!.ToString()))
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.NameShouldNotNull);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.ExperienceLevel) &&
+                !Options.ExperienceLevels.Contains(req[JOPropertyName.ExperienceLevel]?.ToString()))
                 {
                     context.AddFailure(PropertyName.Main, ResponseMessage.InvalidExperienceLevel);
+                    return;
+                }
+
+                if (req.ContainsKey(JOPropertyName.TechStack) && req[JOPropertyName.TechStack] == null)
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.TechStackShouldNotBeNull);
+                    return;
+                }
+                if (req.ContainsKey(JOPropertyName.TechStack) && req[JOPropertyName.TechStack]!.ToObject<List<string>>() == null)
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.TechStackMustBeList);
                     return;
                 }
             });
