@@ -4,6 +4,7 @@ using HireHub.Core.Service;
 using HireHub.Core.Utils.Common;
 using HireHub.Core.Utils.UserProgram.Interface;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HireHub.Core.Validators;
 
@@ -76,7 +77,7 @@ public class EditDriveRequestValidator : AbstractValidator<JObject>
                         return;
                     }
 
-                    if (req[JOPropertyName.DriveDate]!.ToObject<DateTime>() < DateTime.Now)
+                    if (req[JOPropertyName.DriveDate]!.ToObject<DateTime>() < DateTime.Today)
                     {
                         context.AddFailure(PropertyName.Main, ResponseMessage.FutureDateOnlyAllowed);
                         return;
@@ -110,6 +111,18 @@ public class EditDriveRequestValidator : AbstractValidator<JObject>
                     if (req[JOPropertyName.DriveStatus]!.ToString() == nameof(DriveStatus.InProposal))
                     {
                         context.AddFailure(PropertyName.Main, ResponseMessage.DriveStatusCannotChangeToInproposal);
+                        return;
+                    }
+
+                    if (req[JOPropertyName.DriveStatus]!.ToString() == nameof(DriveStatus.Started) && drive.DriveDate.Date > DateTime.Today)
+                    {
+                        context.AddFailure(PropertyName.Main, ResponseMessage.DriveCannotStartedBeforeScheduledDate);
+                        return;
+                    }
+
+                    if (req[JOPropertyName.DriveStatus]!.ToString() == nameof(DriveStatus.Halted) && drive.Status == DriveStatus.InProposal)
+                    {
+                        context.AddFailure(PropertyName.Main, ResponseMessage.DriveNeedToStartFirst);
                         return;
                     }
                 }
