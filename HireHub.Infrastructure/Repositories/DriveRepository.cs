@@ -64,9 +64,9 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(d => d.DriveDate).ThenByDescending(d => d.CreatedDate) :
-            query.OrderBy(u => u.DriveDate).ThenBy(d => d.CreatedDate);
+        query = filter.IsLatestFirst == null ? query.OrderBy(d => d.DriveName) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(d => d.DriveDate).ThenByDescending(d => d.CreatedDate) :
+            query.OrderBy(d => d.DriveDate).ThenBy(d => d.CreatedDate);
 
         return await query.ToListAsync(cancellationToken);
     }
@@ -173,8 +173,8 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
+        query = filter.IsLatestFirst == null ? query.OrderBy(u => u.Drive!.DriveName) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
             query.OrderBy(dm => dm.Drive!.DriveDate).ThenBy(dm => dm.Drive!.CreatedDate);
 
         return await query.ToListAsync(cancellationToken);
@@ -221,8 +221,8 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
+        query = filter.IsLatestFirst == null ? query.OrderBy(u => u.Drive!.DriveName) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
             query.OrderBy(dm => dm.Drive!.DriveDate).ThenBy(dm => dm.Drive!.CreatedDate);
 
         return await query
@@ -286,8 +286,8 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
+        query = filter.IsLatestFirst == null ? query.OrderBy(u => u.Drive!.DriveName) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
             query.OrderBy(dm => dm.Drive!.DriveDate).ThenBy(dm => dm.Drive!.CreatedDate);
 
         return await query.ToListAsync(cancellationToken);
@@ -334,8 +334,8 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
+        query = filter.IsLatestFirst == null ? query.OrderBy(u => u.Drive!.DriveName) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(dm => dm.Drive!.DriveDate).ThenByDescending(dm => dm.Drive!.CreatedDate) :
             query.OrderBy(dm => dm.Drive!.DriveDate).ThenBy(dm => dm.Drive!.CreatedDate);
 
         return await query

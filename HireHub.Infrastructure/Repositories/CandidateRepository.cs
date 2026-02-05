@@ -55,9 +55,9 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
                 .Take(pageSize);
         }
 
-        query = filter.IsLatestFirst ?
-            query.OrderByDescending(u => u.CreatedDate) :
-            query.OrderBy(u => u.CreatedDate);
+        query = filter.IsLatestFirst == null ? query.OrderBy(u => u.FullName).ThenByDescending(u => u.CreatedDate) :
+            filter.IsLatestFirst == true ? query.OrderByDescending(u => u.CreatedDate).ThenBy(u => u.FullName) :
+            query.OrderBy(u => u.CreatedDate).ThenBy(u => u.FullName);
 
         return await query.ToListAsync(cancellationToken);
     }

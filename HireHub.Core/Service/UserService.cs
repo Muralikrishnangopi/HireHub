@@ -41,7 +41,7 @@ public class UserService
     #region Query Services
 
     public async Task<Response<List<UserDTO>>> GetUsers(UserRole? role, bool? isActive,
-        bool isLatestFirst, DateTime? startDate, DateTime? endDate, int? pageNumber, int? pageSize)
+        bool? isLatestFirst, DateTime? startDate, DateTime? endDate, int? pageNumber, int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetUsers));
 

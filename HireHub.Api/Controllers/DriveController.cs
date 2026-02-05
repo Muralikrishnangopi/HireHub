@@ -53,7 +53,7 @@ public class DriveController : ControllerBase
     [ProducesResponseType<ContentResult>(403)]
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetDrives([FromQuery] string? driveStatus,
-        [FromQuery] string? creatorEmail, [FromQuery] int? technicalRounds, [FromQuery] bool isLatestFirst, 
+        [FromQuery] string? creatorEmail, [FromQuery] int? technicalRounds, [FromQuery] bool? isLatestFirst, 
         [FromQuery] bool includePastDrives, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
         [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
@@ -161,7 +161,7 @@ public class DriveController : ControllerBase
     [ProducesResponseType<ContentResult>(403)]
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetDriveMembers([FromQuery] int? driveId, [FromQuery] int? userId, [FromQuery] string? role,
-        [FromQuery] string? driveStatus, [FromQuery] bool isLatestFirst, [FromQuery] bool includePastDrives, 
+        [FromQuery] string? driveStatus, [FromQuery] bool? isLatestFirst, [FromQuery] bool includePastDrives, 
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDriveMembers));
@@ -204,7 +204,7 @@ public class DriveController : ControllerBase
     [ProducesResponseType<ContentResult>(403)]
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetDriveCandidates([FromQuery] int? driveId, [FromQuery] int? candidateId, [FromQuery] string? candidateStatus,
-        [FromQuery] string? driveStatus, [FromQuery] bool isLatestFirst, [FromQuery] bool includePastDrives,
+        [FromQuery] string? driveStatus, [FromQuery] bool? isLatestFirst, [FromQuery] bool includePastDrives,
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDriveCandidates));

@@ -50,7 +50,7 @@ public class CandidateController : ControllerBase
     [ProducesResponseType<ContentResult>(403)]
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetCandidates([FromQuery] string? experienceLevel,
-        [FromQuery] bool isLatestFirst, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
+        [FromQuery] bool? isLatestFirst, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
         [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetCandidates));

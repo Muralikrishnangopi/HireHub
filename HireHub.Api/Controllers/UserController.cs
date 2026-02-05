@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     [ProducesResponseType<ContentResult>(403)]
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetUsers([FromQuery] string? role, [FromQuery] bool? isActive,
-        [FromQuery] bool isLatestFirst, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
+        [FromQuery] bool? isLatestFirst, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
         [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetUsers));

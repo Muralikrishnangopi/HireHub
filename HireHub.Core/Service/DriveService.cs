@@ -39,7 +39,7 @@ public class DriveService
     #region Query Services
 
     public async Task<Response<List<DriveDTO>>> GetDrives(DriveStatus? status,
-        string? creatorEmail, int? technicalRounds, bool isLatestFirst, bool includePastDrives, 
+        string? creatorEmail, int? technicalRounds, bool? isLatestFirst, bool includePastDrives, 
         DateTime? startDate, DateTime? endDate, int? pageNumber, int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDrives));
@@ -104,7 +104,7 @@ public class DriveService
 
 
     public async Task<Response<List<DriveMemberDTO>>> GetDriveMembers(int? driveId, int? userId, UserRole? role,
-        DriveStatus? driveStatus, bool isLatestFirst, bool includePastDrives, DateTime? startDate, DateTime? endDate, 
+        DriveStatus? driveStatus, bool? isLatestFirst, bool includePastDrives, DateTime? startDate, DateTime? endDate, 
         int? pageNumber, int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDriveMembers));
@@ -134,7 +134,7 @@ public class DriveService
 
 
     public async Task<Response<List<DriveCandidateDTO>>> GetDriveCandidates(int? driveId, int? candidateId, CandidateStatus? candidateStatus,
-        DriveStatus? driveStatus, bool isLatestFirst, bool includePastDrives, DateTime? startDate, DateTime? endDate,
+        DriveStatus? driveStatus, bool? isLatestFirst, bool includePastDrives, DateTime? startDate, DateTime? endDate,
         int? pageNumber, int? pageSize)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDriveCandidates));
