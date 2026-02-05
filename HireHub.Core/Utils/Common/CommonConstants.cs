@@ -114,6 +114,7 @@ public static class ResponseMessage
 public static class InnerExceptionMessage
 {
     public const string DriveCandidateAlreadyExistViolation = "Violation of UNIQUE KEY constraint 'UQ_CandidateId_DriveId'.";
+    public const string MsgTriggeredToInvalidEmail = "An invalid request URI was provided.";
 }
 
 public static class PropertyName

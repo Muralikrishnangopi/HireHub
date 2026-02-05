@@ -106,7 +106,8 @@ public class TokenService
                 Body = string.Format(EmailBody.ForgotPasswordOTP, user.FullName, otp)
             }, _httpClientFactory);
         }
-        catch {
+        catch (InvalidOperationException ex) when (ex.Message.Contains(InnerExceptionMessage.MsgTriggeredToInvalidEmail))
+        {
             _otpService.RemoveOtp(key);
             throw new CommonException(ResponseMessage.InvalidEmail);
         }
