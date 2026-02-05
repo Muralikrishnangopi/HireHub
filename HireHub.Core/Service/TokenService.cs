@@ -64,7 +64,7 @@ public class TokenService
         if (!user.IsActive)
         {
             _logger.LogWarning(LogMessage.NotActiveUser, user.UserId);
-            return new() { Warnings = [ResponseMessage.NotActiveUser] };
+            throw new CommonException(ResponseMessage.NotActiveUser);
         }
 
         var role = await _roleRepository.GetByIdAsync(user.RoleId);
@@ -82,17 +82,33 @@ public class TokenService
         return new() { Data = token };
     }
 
-    private bool VerifyPassword(User user, string storedPasswordHash, string providedPassword)
+    public async Task<VerifyEmailResponse> CheckEmailExistsAync(VerifyEmailRequest request)
     {
-        _logger.LogInformation(LogMessage.StartMethod, nameof(VerifyPassword));
+        _logger.LogInformation(LogMessage.StartMethod, nameof(CheckEmailExistsAync));
 
-        var hasher = new PasswordHasher<User>();
-        // To verify:
-        var result = hasher.VerifyHashedPassword(user, storedPasswordHash, providedPassword);
+        var user = await _userRepository.GetByEmailAsync(request.Email);
 
-        _logger.LogInformation(LogMessage.EndMethod, nameof(VerifyPassword));
+        if (user == null)
+        {
+            _logger.LogWarning(LogMessage.UserNotFound, request.Email);
+            throw new CommonException(ResponseMessage.EmailNotFound);
+        }
 
-        return result == PasswordVerificationResult.Success;
+        var otp = new Random().Next(100000, 999999).ToString();
+
+        var key = $"{Otp.Prefix}{user.Email}";
+        _otpService.StoreOtp(key, otp);
+
+        await _azureEmailService.SendEmailAsync(new Email
+        {
+            To = user.Email,
+            Subject = EmailSubject.ForgotPasswordOTP,
+            Body = string.Format(EmailBody.ForgotPasswordOTP, user.FullName, otp)
+        }, _httpClientFactory);
+
+        _logger.LogInformation(LogMessage.EndMethod, nameof(CheckEmailExistsAync));
+
+        return new() { Data = otp };
     }
 
     public async Task<ForgotPasswordResponse> ForgotPasswordAsync(ForgotPasswordRequest request)
@@ -110,7 +126,13 @@ public class TokenService
         if (user == null)
         {
             _logger.LogWarning(LogMessage.UserNotFound, request.Email);
-            throw new CommonException(ResponseMessage.EmailNotFound);
+            throw new CommonException(ResponseMessage.UserNotFound);
+        }
+
+        if (!user.IsActive)
+        {
+            _logger.LogWarning(LogMessage.NotActiveUser, user.UserId);
+            throw new CommonException(ResponseMessage.NotActiveUser);
         }
 
         var hasher = new PasswordHasher<User>();
@@ -136,21 +158,16 @@ public class TokenService
             throw new CommonException(ResponseMessage.EmailNotFound);
         }
 
-        if (string.IsNullOrEmpty(user.PasswordHash))
-        {
-            return new() { Warnings = [ResponseMessage.PasswordSetRequire] };
-        }
-
-        if (!VerifyPassword(user, user.PasswordHash, request.OldPassword))
-        {
-            _logger.LogWarning(LogMessage.InvalidPassword, user.UserId);
-            throw new CommonException(CommonRS.Auth_InvalidCredentials_Format(request.Email));
-        }
-
         if (!user.IsActive)
         {
             _logger.LogWarning(LogMessage.NotActiveUser, user.UserId);
-            return new() { Warnings = [ResponseMessage.NotActiveUser] };
+            throw new CommonException(ResponseMessage.NotActiveUser);
+        }
+
+        if (!string.IsNullOrEmpty(user.PasswordHash) && !VerifyPassword(user, user.PasswordHash, request.OldPassword))
+        {
+            _logger.LogWarning(LogMessage.InvalidPassword, user.UserId);
+            throw new CommonException(CommonRS.Auth_InvalidCredentials_Format(request.Email));
         }
 
         var hasher = new PasswordHasher<User>();
@@ -164,32 +181,21 @@ public class TokenService
         return new() { Data = ResponseMessage.PasswordChangedSuccessfully };
     }
 
-    public async Task<VerifyEmailResponse> CheckEmailExistsAync(VerifyEmailRequest request)
+    #region Private Methods
+
+    private bool VerifyPassword(User user, string storedPasswordHash, string providedPassword)
     {
-        _logger.LogInformation(LogMessage.StartMethod, nameof(CheckEmailExistsAync));
+        _logger.LogInformation(LogMessage.StartMethod, nameof(VerifyPassword));
 
-        var user = await _userRepository.GetByEmailAsync(request.Email);
+        var hasher = new PasswordHasher<User>();
+        // To verify:
+        var result = hasher.VerifyHashedPassword(user, storedPasswordHash, providedPassword);
 
-        if (user == null)
-        {
-            _logger.LogWarning(LogMessage.UserNotFound, request.Email);
-            throw new CommonException(ResponseMessage.EmailNotFound);
-        }
+        _logger.LogInformation(LogMessage.EndMethod, nameof(VerifyPassword));
 
-        var otp = new Random().Next(100000, 999999).ToString();
-
-        var key = $"{Otp.Prefix}{user.Email}";
-        _otpService.StoreOtp(key, otp);
-
-        await _azureEmailService.SendEmailAsync(new Email 
-            { 
-                To = user.Email, 
-                Subject = EmailSubject.ForgotPasswordOTP, 
-                Body = string.Format(EmailBody.ForgotPasswordOTP, user.FullName, otp)
-            }, _httpClientFactory);
-
-        _logger.LogInformation(LogMessage.EndMethod, nameof(CheckEmailExistsAync));
-
-        return new() { Data = otp };
+        return result == PasswordVerificationResult.Success;
     }
+
+    #endregion
+
 }
