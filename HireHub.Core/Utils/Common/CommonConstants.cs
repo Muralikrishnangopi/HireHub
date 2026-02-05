@@ -31,6 +31,7 @@ public static class ResponseMessage
     public const string InvalidExperienceLevel = "Provided Candidate Experience Level is Invalid";
     public const string EmailOrPhoneAlreadyExist = "Email or Phone number already exist";
     public const string InvalidRole = "Provided Role is Invalid";
+    public const string InvalidEmail = "Invalid Email";
     public const string NameShouldNotNull = "Name should not be Null";
     public const string IsActiveShouldNotNull = "IsActive should not be Null";
     public const string EmailShouldNotNull = "Email should not be Null";
@@ -283,6 +284,8 @@ public static class Otp
 public static class EmailSubject
 {
     public const string ForgotPasswordOTP = "Forgot Password OTP";
+    public const string NewUserWelcome = "Welcome to HireHub – Your Account Is Ready";
+    public const string EmailChangedNotification = "HireHub Email Address Changed";
 }
 
 public static class EmailBody
@@ -301,4 +304,44 @@ If you did not request a password reset, please ignore this email.
 
 Regards,
 Your Application Team";
+
+    public const string NewUserWelcome =
+@"Hello {0},
+
+You have been added to the HireHub system.
+
+Your account has been successfully created with the following credentials:
+
+Username: {1}
+Password: {2}
+
+You can access HireHub using the link below:
+https://localhost:5000/login
+
+For security reasons, we strongly recommend that you change your password after your first login.
+
+If you believe this account was created in error, please contact the system administrator.
+
+Regards,
+HireHub Team";
+
+    public const string EmailChangedNotification =
+@"Hello {0},
+
+This is to inform you that the email address associated with your HireHub account has been changed successfully.
+
+Previous Email Address:
+{1}
+
+New Email Address:
+{2}
+
+If you made this change, no further action is required.
+
+If you did NOT make this change, please contact our support team immediately or reset your password to secure your account.
+
+Regards,
+HireHub Team";
+
+
 }

@@ -99,12 +99,17 @@ public class TokenService
         var key = $"{Otp.Prefix}{user.Email}";
         _otpService.StoreOtp(key, otp);
 
-        await _azureEmailService.SendEmailAsync(new Email
-        {
-            To = user.Email,
-            Subject = EmailSubject.ForgotPasswordOTP,
-            Body = string.Format(EmailBody.ForgotPasswordOTP, user.FullName, otp)
-        }, _httpClientFactory);
+        try {
+            await _azureEmailService.SendEmailAsync(new Email {
+                To = user.Email,
+                Subject = EmailSubject.ForgotPasswordOTP,
+                Body = string.Format(EmailBody.ForgotPasswordOTP, user.FullName, otp)
+            }, _httpClientFactory);
+        }
+        catch {
+            _otpService.RemoveOtp(key);
+            throw new CommonException(ResponseMessage.InvalidEmail);
+        }
 
         _logger.LogInformation(LogMessage.EndMethod, nameof(CheckEmailExistsAync));
 

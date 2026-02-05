@@ -1,9 +1,12 @@
-﻿using HireHub.Core.Data.Filters;
+﻿using System.Net.Http;
+using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
 using HireHub.Core.Utils.Common;
 using HireHub.Shared.Common.Exceptions;
+using HireHub.Shared.Infrastructure.Interface;
+using HireHub.Shared.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -15,16 +18,21 @@ public class UserService
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IDriveRepository _driveRepository;
+    private readonly IAzureEmailService _azureEmailService;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<UserService> _logger;
     private readonly ISaveRepository _saveRepository;
 
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository,
-        IDriveRepository driveRepository,
+        IDriveRepository driveRepository, 
+        IAzureEmailService azureEmailService, IHttpClientFactory httpClientFactory,
         ILogger<UserService> logger, ISaveRepository saveRepository)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _driveRepository = driveRepository;
+        _azureEmailService = azureEmailService;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
         _saveRepository = saveRepository;
     }
@@ -104,6 +112,17 @@ public class UserService
         var userDTO = Helper.Map<User, UserDTO>(user);
         userDTO.RoleName = role.RoleName.ToString();
 
+        try {
+            await _azureEmailService.SendEmailAsync(new Email {
+                To = user.Email,
+                Subject = EmailSubject.NewUserWelcome,
+                Body = string.Format(EmailBody.NewUserWelcome, user.FullName, user.Email, request.Password)
+            }, _httpClientFactory);
+        }
+        catch {
+            throw new CommonException(ResponseMessage.InvalidEmail);
+        }
+
         _logger.LogInformation(LogMessage.EndMethod, nameof(AddUser));
 
         return new() { Data = userDTO };
@@ -120,6 +139,8 @@ public class UserService
 
         if (user == null)
             throw new CommonException(ResponseMessage.UserNotFound);
+
+        var oldEmail = user.Email;
 
         // ✅ Allowed updates only
         if (request.ContainsKey(JOPropertyName.FullName))
@@ -148,6 +169,18 @@ public class UserService
 
         var userDTO = Helper.Map<User, UserDTO>(user);
         userDTO.RoleName = (await _roleRepository.GetByIdAsync(user.RoleId))!.RoleName.ToString();
+
+        if (request.ContainsKey(JOPropertyName.Email))
+            try {
+                await _azureEmailService.SendEmailAsync(new Email {
+                    To = user.Email,
+                    Subject = EmailSubject.EmailChangedNotification,
+                    Body = string.Format(EmailBody.EmailChangedNotification, user.FullName, oldEmail, user.Email)
+                }, _httpClientFactory);
+            }
+            catch {
+                throw new CommonException(ResponseMessage.InvalidEmail);
+            }
 
         _logger.LogInformation(LogMessage.EndMethod, nameof(EditUser));
 
