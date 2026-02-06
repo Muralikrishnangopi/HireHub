@@ -1,8 +1,10 @@
 ﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
+using HireHub.Core.DTO;
 using HireHub.Shared.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 namespace HireHub.Infrastructure.Repositories;
 
@@ -72,11 +74,8 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             filter.IsLatestFirst == true ? query.OrderByDescending(u => u.CreatedDate).ThenBy(u => u.FullName) :
             query.OrderBy(u => u.CreatedDate).ThenBy(u => u.FullName);
 
-        query = query.OrderBy(u => u.FullName);
-
         return await query.ToListAsync(cancellationToken);
     }
-
     public async Task<bool> IsUserWithEmailOrPhoneExist(string email, string phone)
     {
         return await _context.Users.AnyAsync(e => e.Email == email || e.Phone == phone);

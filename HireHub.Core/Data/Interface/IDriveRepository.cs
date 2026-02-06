@@ -10,6 +10,7 @@ public interface IDriveRepository : IGenericRepository<Drive>
     #region DQL
 
     Task<int> CountDrivesAsync(DriveStatus? driveStatus, CancellationToken cancellationToken = default);
+
     Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default);
 
     Task<bool> IsUserAssignedInAnyActiveDriveOnDateAsync(int userId, DateTime driveDate, CancellationToken cancellationToken = default);
@@ -34,12 +35,13 @@ public interface IDriveRepository : IGenericRepository<Drive>
     Task<List<DriveCandidate>> GetDriveCandidatesWithDetailsAsync(DriveCandidateFilter filter, CancellationToken cancellationToken = default);
 
     Task<List<DriveCandidateDTO>> GetDriveCandidatesAsDtoAsync(DriveCandidateFilter filter, CancellationToken cancellationToken = default);
+    
+    Task<List<Drive>> GetMentorDrivesWithCandidatesAsync(int mentorId,CancellationToken cancellationToken = default);
+	#endregion
 
-    #endregion
+	#region DML
 
-    #region DML
-
-    void RemoveDriveMember(DriveMember driveMember);
+	void RemoveDriveMember(DriveMember driveMember);
     void RemoveDriveCandidate(DriveCandidate driveCandidate);
 
     #endregion

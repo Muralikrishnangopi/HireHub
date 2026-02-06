@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using HireHub.Core.Data.Filters;
+﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
@@ -10,6 +9,7 @@ using HireHub.Shared.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace HireHub.Core.Service;
 
@@ -24,7 +24,7 @@ public class UserService
     private readonly ISaveRepository _saveRepository;
 
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository,
-        IDriveRepository driveRepository, 
+        IDriveRepository driveRepository,
         IAzureEmailService azureEmailService, IHttpClientFactory httpClientFactory,
         ILogger<UserService> logger, ISaveRepository saveRepository)
     {
@@ -77,6 +77,31 @@ public class UserService
         return new() { Data = userDTO };
     }
 
+    public async Task<Response<List<DriveWithCandidatesDto>>> GetDrivewithCandidate(int mentorId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetDrivewithCandidate));
+        var user = await _userRepository.GetByIdAsync(mentorId, CancellationToken.None) ?? 
+            throw new CommonException(ResponseMessage.UserNotFound);
+		var drives = await _driveRepository
+	  .GetMentorDrivesWithCandidatesAsync(mentorId, CancellationToken.None);
+
+        // 3. Map entities → DTOs
+        var result = drives.Select(d => new DriveWithCandidatesDto
+        {
+            DriveId = d.DriveId,
+            DriveName = d.DriveName,
+            Candidates = d.DriveCandidates
+        .Where(dc => dc.Candidate != null)
+        .Select(dc => Helper.Map<Candidate, CandidateDTO>(dc.Candidate!))
+        .ToList()
+        }).ToList();
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetDrivewithCandidate));
+        return new Response<List<DriveWithCandidatesDto>>
+		{
+			Data = result,
+		};
+
+	}
     #endregion
 
     #region Command Services

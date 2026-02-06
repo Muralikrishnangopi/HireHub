@@ -1,4 +1,5 @@
-﻿using HireHub.Core.Data.Interface;
+﻿using Azure.Core;
+using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
 using HireHub.Core.DTO.Base;
@@ -111,11 +112,39 @@ public class UserController : ControllerBase
         }
     }
 
-    #endregion
+ 
+	[RequireAuth([RoleName.Panel])]
+	[HttpGet("fetchCandidatesDetail/{mentorId}")]
+	[ProducesResponseType<Response<List<DriveCandidateDTO>>>(200)]
+	[ProducesResponseType<BaseResponse>(400)]
+	[ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> getCandidatesByMentorId(int mentorId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(getCandidatesByMentorId));
+        try
+        {
+            var response = await _userService.GetDrivewithCandidate(mentorId);
 
-    #region Post API's
+			_logger.LogInformation(LogMessage.EndMethod, nameof(getCandidatesByMentorId));
+            return Ok(response);
 
-    [RequireAuth([RoleName.Admin])]
+		}
+        catch (CommonException ex)
+        {
+			_logger.LogWarning(LogMessage.EndMethodException, nameof(getCandidatesByMentorId), ex.Message);
+			return BadRequest(new BaseResponse()
+			{
+				Errors = [
+					new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+				]
+			});
+		}
+    }
+	#endregion
+
+	#region Post API's
+
+	[RequireAuth([RoleName.Admin])]
     [HttpPost("add")]
     [ProducesResponseType<Response<UserDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
