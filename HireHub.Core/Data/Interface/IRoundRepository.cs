@@ -25,6 +25,17 @@ public interface IRoundRepository : IGenericRepository<Round>
     Task<Round?> GetRoundByIdWithDetails(int roundId, CancellationToken cancellationToken = default);
 
     Task<List<Round>> GetRoundsForDriveCandidate(int driveCandidateId, CancellationToken cancellationToken = default);
+    Task<List<DriveCandidate>> GetAllDriveCandidates(int driveId);
+
+    Task<List<DriveMember>> GetAllDriveMember(int driveId);
+
+   Task<Round?> GetOldInterviewer(int roundId, int oldInterviewerId);
+
+
+
+
+    Task AssignNewInterview(Round round, int newInterviewerUserId);
+    
 
     #endregion
 

@@ -7,6 +7,7 @@ using HireHub.Core.Service;
 using HireHub.Core.Utils.Common;
 using HireHub.Core.Utils.UserProgram.Interface;
 using HireHub.Core.Validators;
+using HireHub.Infrastructure.Repositories;
 using HireHub.Shared.Authentication.Filters;
 using HireHub.Shared.Common.Exceptions;
 using HireHub.Shared.Common.Models;
@@ -28,10 +29,14 @@ public class DriveController : ControllerBase
     private readonly CommonService _commonService;
     private readonly ITransactionRepository _transactionRepository;
     private readonly ILogger<DriveController> _logger;
+    private readonly RoundService _roundService;
+       
 
     public DriveController(DriveService driveService, IUserProvider userProvider,
         RepoService repoService, CommonService commonService,
-        ITransactionRepository transactionRepository, ILogger<DriveController> logger)
+        ITransactionRepository transactionRepository, ILogger<DriveController> logger,RoundRepository roundRepository,
+        RoundService roundService
+        )
     {
         _driveService = driveService;
         _userProvider = userProvider;
@@ -39,6 +44,7 @@ public class DriveController : ControllerBase
         _commonService = commonService;
         _transactionRepository = transactionRepository;
         _logger = logger;
+        _roundService = roundService;
     }
 
 
