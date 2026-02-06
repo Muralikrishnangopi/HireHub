@@ -309,5 +309,56 @@ public class CandidateController : ControllerBase
         }
     }
 
+    [RequireAuth([RoleName.Admin, RoleName.Panel])]
+    [HttpGet("panelmember/assignedcandidates")]
+    [ProducesResponseType<Response<List<CandidateDTO>>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ContentResult>(401)]
+    [ProducesResponseType<ContentResult>(403)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> GetPanelAssignedCandidates()
+    {
+        _logger.LogInformation(LogMessage.StartMethod);
+ 
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var request = new GetPanelAssignedCandidatesRequest();
+ 
+                var baseResponse = new BaseResponse();
+                var validator = await new GetPanelAssignedCandidatesRequestValidator(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(request);
+ 
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+                var currentUserId = int.Parse(_userProvider.CurrentUserId);//GetPanelAssignedCandidatesRequestValidator
+                var response = await _candidateService.GetCandidatesByUserIdAsync(currentUserId);
+                _logger.LogInformation(LogMessage.EndMethod);
+ 
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
     #endregion
 }

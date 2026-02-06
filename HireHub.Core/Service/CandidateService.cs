@@ -162,6 +162,10 @@ public class CandidateService
         });
         return candidateDTOs;
     }
-
+    public async Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId)
+    {
+        // Business rules can go here if needed
+        return await _candidateRepository.GetCandidatesByUserIdAsync(userId);
+    }
     #endregion
 }

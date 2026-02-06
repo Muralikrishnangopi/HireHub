@@ -76,6 +76,21 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
         await _context.Candidates.AddRangeAsync(candidates, cancellationToken);
     }
 
+    public async Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId)
+    {
+        return await _context.DriveMembers
+            .Where(dm=>dm.UserId==userId&&dm.RoleId==3)
+            .Join(
+                _context.Rounds,
+                dm => dm.DriveMemberId,
+                r => r.InterviewerId,
+                (dm, r) => r.DriveCandidate
+            )
+            .Select(dc=>dc.Candidate!)
+            .Distinct()
+            .ToListAsync();
+    }
+
     #endregion
 
     #region Private Methods

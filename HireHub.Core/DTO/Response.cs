@@ -202,3 +202,10 @@ public class FeedbackDTO
     public DateTime SubmittedDate { get; set; }
 }
 
+public class DriveWithCandidatesDto
+{
+    public int DriveId { get; set;}
+    public string? DriveName { get; set; }
+	public DateTime DriveDate { get; set; }
+    public List<CandidateDTO>? Candidates { get; set; } = new();
+}
