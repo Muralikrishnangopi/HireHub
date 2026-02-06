@@ -209,3 +209,7 @@ public class DriveWithCandidatesDto
 	public DateTime DriveDate { get; set; }
     public List<CandidateDTO>? Candidates { get; set; } = new();
 }
+
+public class AutoAssignDTO{
+    public int? DriveId{get;set;}
+}

@@ -110,6 +110,11 @@ public static class ResponseMessage
     public const string InvalidCandidateRecommendation = "Invalid Candidate Recommendation";
     public const string InvalidRatingNumber = "Invalid Rating Number";
     public const string FeedbackAlreadyProvided = "Feedback already provided";
+    public const string DriveNotYetStart="Drive Date assigned for particular time";
+    public const string SomethingHappenInDrive="Drive already started or something happen in that drive";
+    public const string PanelNotAssignedToAnyDrive="Panel member is not assigned to any drive";
+    public const string OnlyPanelCanViewAssignedCandidates="Only panel members can view assigned candidates";
+    public const string Unauthorized="Umauthorished person to enter this page";
 }
 
 public static class InnerExceptionMessage

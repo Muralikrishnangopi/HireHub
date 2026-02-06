@@ -37,6 +37,7 @@ namespace HireHub.Core.Validators
                 {
                     context.AddFailure(PropertyName.Main, ResponseMessage.OnlyPanelCanViewAssignedCandidates);
                     return;
+                    
                 }
  
                 // 3️⃣ User must exist

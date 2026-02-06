@@ -169,6 +169,43 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<DriveCandidate>> GetAllDriveCandidates(int driveId)
+{
+    var driveCandidates = await _context.DriveCandidates
+                            .Where(dc => dc.DriveId == driveId)
+                            .ToListAsync();
+    return driveCandidates;
+}
+
+public async Task<List<DriveMember>> GetAllDriveMember(int driveId)
+{
+    return await _context.DriveMembers
+        .Where(dm => dm.DriveId == driveId && dm.RoleId == 3)
+        .ToListAsync();
+}
+public async Task<Round?> GetOldInterviewer(int roundId, int oldInterviewerId)
+{
+    return await _context.Rounds
+        .Include(r => r.DriveCandidate)
+        .FirstOrDefaultAsync(r =>
+            r.RoundId == roundId &&
+            r.InterviewerId == oldInterviewerId);
+}
+
+
+
+public async Task AssignNewInterview(Round round, int newInterviewerUserId)
+{
+    var newPanel = await _context.DriveMembers.FirstOrDefaultAsync(dm =>
+        dm.DriveMemberId == newInterviewerUserId &&
+        dm.RoleId == 3 &&
+        dm.DriveId == round.DriveCandidate.DriveId);
+
+    if (newPanel == null)
+        throw new Exception("Invalid panel interviewer");
+
+    round.InterviewerId = newPanel.DriveMemberId;
+}
     #endregion
 
     #region DML

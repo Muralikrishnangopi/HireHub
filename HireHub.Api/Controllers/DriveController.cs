@@ -1144,6 +1144,100 @@ public class DriveController : ControllerBase
             });
         }
     }
+    
+    [RequireAuth([RoleName.Admin, RoleName.Hr])]
+    // [RequirePermission(UserAction.Drive, ActionType.Update)]
+    [HttpPost("AutoAssign/panelmember")]
+    [ProducesResponseType<Response<AutoAssignDTO>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
 
+    public async Task<IActionResult> AutoAssignPanel([FromQuery] int driveId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(driveId));
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new AutoPanelAssignRequest(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(driveId);
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+                var response = await _roundService.AutoPanelAssign(driveId);
+                _transactionRepository.CommitTransaction();
+                //var response = await _roundService.AutoPanelAssign(driveId, currentUserId);
+                return Ok();
+
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(driveId), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    
+    }
+    [RequireAuth([RoleName.Admin, RoleName.Hr])]
+    // [RequirePermission(UserAction.Drive, ActionType.Update)]
+    [HttpPut("ReAssign/panelmember")]
+    [ProducesResponseType<Response<ReassignPanel>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> ReassignInterviewer(ReassignPanel request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(ReassignInterviewer));
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new ReassignPanelAssignRequest(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(request);
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+                await _roundService.ReassignInterviewer(request.roundId, request.oldInterviewId, request.newInterviewerId);
+                _transactionRepository.CommitTransaction();
+                return Ok();
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(ReassignInterviewer), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
     #endregion
 }
