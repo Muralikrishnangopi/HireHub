@@ -248,6 +248,64 @@ public class CandidateController : ControllerBase
         }
     }
 
+    [RequireAuth([RoleName.Mentor])]
+    [HttpPost("candidate/mark-attendance")]
+    [ProducesResponseType<Response<RequestMarkAttendances>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ContentResult>(401)]
+    [ProducesResponseType<ContentResult>(403)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> MarkAttendance([FromBody] RequestMarkAttendances request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(MarkAttendance));
+
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new
+                    CandidateRequestATtendanceValidator(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(request);
+
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+
+                var currentuserId = int.Parse(_userProvider.CurrentUserId);
+
+                var response = await _candidateService.MarkAttendance(request.driveId, request.CandidateId, request.attendanceStatus, currentuserId);
+
+
+
+                _transactionRepository.CommitTransaction();
+
+                _logger.LogInformation(LogMessage.EndMethod, nameof(MarkAttendance));
+
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(MarkAttendance), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
     #endregion
 
     #region Put API's

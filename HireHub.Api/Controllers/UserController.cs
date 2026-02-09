@@ -112,12 +112,12 @@ public class UserController : ControllerBase
         }
     }
 
- 
-	[RequireAuth([RoleName.Panel])]
-	[HttpGet("fetchCandidatesDetail/{mentorId}")]
-	[ProducesResponseType<Response<List<DriveCandidateDTO>>>(200)]
-	[ProducesResponseType<BaseResponse>(400)]
-	[ProducesResponseType<ErrorResponse>(500)]
+
+    [RequireAuth([RoleName.Mentor])]
+    [HttpGet("fetchCandidatesDetail/{mentorId}")]
+    [ProducesResponseType<Response<List<DriveCandidateDTO>>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> getCandidatesByMentorId(int mentorId)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(getCandidatesByMentorId));
@@ -125,26 +125,27 @@ public class UserController : ControllerBase
         {
             var response = await _userService.GetDrivewithCandidate(mentorId);
 
-			_logger.LogInformation(LogMessage.EndMethod, nameof(getCandidatesByMentorId));
+            _logger.LogInformation(LogMessage.EndMethod, nameof(getCandidatesByMentorId));
             return Ok(response);
 
-		}
+        }
         catch (CommonException ex)
         {
-			_logger.LogWarning(LogMessage.EndMethodException, nameof(getCandidatesByMentorId), ex.Message);
-			return BadRequest(new BaseResponse()
-			{
-				Errors = [
-					new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
-				]
-			});
-		}
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(getCandidatesByMentorId), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
     }
-	#endregion
 
-	#region Post API's
+    #endregion
 
-	[RequireAuth([RoleName.Admin])]
+    #region Post API's
+
+    [RequireAuth([RoleName.Admin])]
     [HttpPost("add")]
     [ProducesResponseType<Response<UserDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]

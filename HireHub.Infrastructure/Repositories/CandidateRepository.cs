@@ -91,6 +91,25 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
             .ToListAsync();
     }
 
+    public async Task<DriveCandidate?> GetValidDriveCandidateForAttendance(int driveId, int candidateId, int currentUserId)
+    {
+        var driveCandidate = await _context.DriveCandidates
+        .Include(dc => dc.Drive)
+        .Where(dc =>
+            dc.DriveId == driveId &&
+            dc.CandidateId == candidateId &&
+            dc.Drive != null &&
+            dc.Drive.DriveDate.Date == DateTime.Today &&
+            dc.Drive.Status == DriveStatus.Started &&
+            _context.DriveMembers.Any(dm =>
+                dm.DriveId == driveId &&
+                dm.UserId == currentUserId
+            )
+        )
+        .FirstOrDefaultAsync();
+
+        return driveCandidate;
+    }
     #endregion
 
     #region Private Methods

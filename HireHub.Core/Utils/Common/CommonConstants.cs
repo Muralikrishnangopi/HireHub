@@ -115,6 +115,12 @@ public static class ResponseMessage
     public const string PanelNotAssignedToAnyDrive="Panel member is not assigned to any drive";
     public const string OnlyPanelCanViewAssignedCandidates="Only panel members can view assigned candidates";
     public const string Unauthorized="Umauthorished person to enter this page";
+    public const string InvalidDrive = "Invalid drive.";
+    public const string InvalidCandidate = "Invalid candidate.";
+    public const string AttendanceNotAllowed =
+        "Attendance allowed only for today's active drive.";
+    public const string AttendanceAlreadyMarked =
+        "Attendance already marked.";
 }
 
 public static class InnerExceptionMessage

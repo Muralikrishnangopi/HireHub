@@ -356,25 +356,31 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
     }
 
 
-	public async Task<List<Drive>> GetMentorDrivesWithCandidatesAsync(
-	int mentorId,
-	CancellationToken cancellationToken = default)
-	{
-		return await _context.DriveMembers
-			.Where(dm => dm.UserId == mentorId)
-			.Select(dm => dm.Drive!)
-			.Where(d => d.Status == DriveStatus.Started
-					 || d.Status == DriveStatus.InProposal)
-			.Include(d => d.DriveCandidates).ThenInclude(dc => dc.Candidate)
-			.ToListAsync(cancellationToken);
-	}
+    public async Task<List<Drive>> GetMentorDrivesWithCandidatesAsync(
+        int mentorId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Drives
+            .Where(d =>
+                (d.Status == DriveStatus.Started ||
+                 d.Status == DriveStatus.InProposal) &&
+                d.DriveMembers.Any(dm => dm.UserId == mentorId)
+            )
+            .Include(d => d.DriveCandidates)
+                .ThenInclude(dc => dc.Candidate)
+            .Include(d => d.DriveCandidates)
+                .ThenInclude(dc => dc.Rounds)
+                    .ThenInclude(r => r.Interviewer)
+                        .ThenInclude(dm => dm.User)
+            .ToListAsync(cancellationToken);
+    }
 
 
-	#endregion
+    #endregion
 
-	#region DML
+    #region DML
 
-	public void RemoveDriveMember(DriveMember driveMember)
+    public void RemoveDriveMember(DriveMember driveMember)
     {
         _context.DriveMembers.Remove(driveMember);
     }

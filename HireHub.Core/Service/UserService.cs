@@ -80,28 +80,67 @@ public class UserService
     public async Task<Response<List<DriveWithCandidatesDto>>> GetDrivewithCandidate(int mentorId)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetDrivewithCandidate));
-        var user = await _userRepository.GetByIdAsync(mentorId, CancellationToken.None) ?? 
-            throw new CommonException(ResponseMessage.UserNotFound);
-		var drives = await _driveRepository
-	  .GetMentorDrivesWithCandidatesAsync(mentorId, CancellationToken.None);
 
-        // 3. Map entities → DTOs
+        var user = await _userRepository.GetByIdAsync(
+            mentorId,
+            CancellationToken.None
+        ) ?? throw new CommonException(ResponseMessage.UserNotFound);
+
+        var drives = await _driveRepository
+            .GetMentorDrivesWithCandidatesAsync(mentorId, CancellationToken.None);
+
         var result = drives.Select(d => new DriveWithCandidatesDto
         {
             DriveId = d.DriveId,
             DriveName = d.DriveName,
-            Candidates = d.DriveCandidates
-        .Where(dc => dc.Candidate != null)
-        .Select(dc => Helper.Map<Candidate, CandidateDTO>(dc.Candidate!))
-        .ToList()
-        }).ToList();
-        _logger.LogInformation(LogMessage.EndMethod, nameof(GetDrivewithCandidate));
-        return new Response<List<DriveWithCandidatesDto>>
-		{
-			Data = result,
-		};
+            DriveDate = d.DriveDate,
 
-	}
+            Candidates = d.DriveCandidates
+                .Where(dc => dc.Candidate != null)
+                .Select(dc =>
+                {
+                    var latestRound = dc.Rounds
+                        .OrderByDescending(r => r.RoundId)
+                        .FirstOrDefault();
+
+                    return new MentorCandidateDto
+                    {
+                        // Candidate
+                        CandidateId = dc.Candidate!.CandidateId,
+                        FullName = dc.Candidate.FullName,
+                        Email = dc.Candidate.Email,
+                        Phone = dc.Candidate.Phone,
+                        Address = dc.Candidate.Address,
+                        College = dc.Candidate.College,
+                        PreviousCompany = dc.Candidate.PreviousCompany,
+
+                        // DriveCandidate
+                        AttendanceStatus = dc.Attendance_Status,
+                        Status = dc.Status,
+
+                        // Round
+                        RoundType = latestRound?.RoundType,
+                        RoundStatus = latestRound?.Status,
+                        RoundResult = latestRound?.Result,
+
+                        // Interviewer (User)
+                        InterviewerId = latestRound?.Interviewer?.UserId,
+                        InterviewerName = latestRound?.Interviewer?.User?.FullName,
+                        InterviewerEmail = latestRound?.Interviewer?.User?.Email,
+                        InterviewerPhone = latestRound?.Interviewer?.User?.Phone
+                    };
+                })
+                .ToList()
+        }).ToList();
+
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetDrivewithCandidate));
+
+        return new Response<List<DriveWithCandidatesDto>>
+        {
+            Data = result
+        };
+    }
+
     #endregion
 
     #region Command Services

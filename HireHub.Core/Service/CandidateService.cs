@@ -147,6 +147,33 @@ public class CandidateService
         return new() { Data = candidateDTO };
     }
 
+    public async Task<bool> MarkAttendance(
+ int driveId,
+ int candidateId,
+  string Attendance_Status,
+ int currentUserId
+)
+    {
+        var driveCandidate =
+            await _candidateRepository.GetValidDriveCandidateForAttendance(driveId, candidateId, currentUserId);
+
+        if (driveCandidate == null)
+            throw new CommonException(
+                "Attendance allowed only for today's active drive.");
+
+        // Business rule
+        if (driveCandidate.Attendance_Status == "Present")
+            throw new CommonException("Attendance already marked.");
+
+        // Update
+        driveCandidate.Attendance_Status = Attendance_Status;
+        driveCandidate.StatusSetBy = currentUserId;
+
+        await _saveRepository.SaveChangesAsync(); // or UnitOfWork
+
+        return true;
+    }
+
     #endregion
 
     #region Private Methods

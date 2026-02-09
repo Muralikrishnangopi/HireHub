@@ -14,6 +14,8 @@ public class DriveCandidate : BaseEntity
     public int DriveCandidateId { get; set; }
     public int CandidateId { get; set; }
     public int DriveId { get; set; }
+
+    public string Attendance_Status { get; set; }
     public CandidateStatus Status { get; set; } = CandidateStatus.Pending;
     public int? StatusSetBy { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;

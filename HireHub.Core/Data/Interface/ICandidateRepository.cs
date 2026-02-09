@@ -18,6 +18,8 @@ public interface ICandidateRepository : IGenericRepository<Candidate>
 
     Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId);
 
+    Task<DriveCandidate?> GetValidDriveCandidateForAttendance(int driveId, int candidateId, int currentUserId);
+
     #endregion
 
     #region DML

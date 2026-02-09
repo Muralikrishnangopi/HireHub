@@ -207,7 +207,7 @@ public class DriveWithCandidatesDto
     public int DriveId { get; set;}
     public string? DriveName { get; set; }
 	public DateTime DriveDate { get; set; }
-    public List<CandidateDTO>? Candidates { get; set; } = new();
+    public List<MentorCandidateDto>? Candidates { get; set; } = new();
 }
 
 public class AutoAssignDTO{
