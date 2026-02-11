@@ -16,6 +16,7 @@ namespace HireHub.Core.Service;
 public class UserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IAvailbilityRepository _availbilityRepository; 
     private readonly IRoleRepository _roleRepository;
     private readonly IDriveRepository _driveRepository;
     private readonly IAzureEmailService _azureEmailService;
@@ -24,13 +25,14 @@ public class UserService
     private readonly ISaveRepository _saveRepository;
 
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository,
-        IDriveRepository driveRepository,
+        IDriveRepository driveRepository,IAvailbilityRepository availbilityRepository,
         IAzureEmailService azureEmailService, IHttpClientFactory httpClientFactory,
         ILogger<UserService> logger, ISaveRepository saveRepository)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _driveRepository = driveRepository;
+        _availbilityRepository=availbilityRepository;
         _azureEmailService = azureEmailService;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -251,6 +253,30 @@ public class UserService
         _logger.LogInformation(LogMessage.EndMethod, nameof(EditUser));
 
         return new() { Data = userDTO };
+    }
+
+    public async Task<Response<List<AvailabilityDTO>>> SetAvailability(SetAvailabilityRequest setAvailabilityRequest)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(SetAvailability));
+        var response = new List<AvailabilityDTO>();
+        foreach(var date in setAvailabilityRequest.availabilityDates)
+        {
+            var availability = new Availability
+            {
+                UserId = setAvailabilityRequest.userId,
+                AvailabilityDate = date
+            };
+            await _availbilityRepository.AddAsync(availability,CancellationToken.None);
+            
+            var availabiltyDto = Helper.Map<Availability, AvailabilityDTO>(availability);
+            response.Add(availabiltyDto);
+
+        }
+        _saveRepository.SaveChanges();
+        _logger.LogInformation(LogMessage.EndMethod, nameof(SetAvailability));
+
+        return new Response<List<AvailabilityDTO>> { Data = response };
+
     }
 
     #endregion

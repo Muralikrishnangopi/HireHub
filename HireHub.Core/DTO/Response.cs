@@ -213,3 +213,10 @@ public class DriveWithCandidatesDto
 public class AutoAssignDTO{
     public int? DriveId{get;set;}
 }
+
+public class AvailabilityDTO
+{
+    public int AvailabilityId {  get; set; }
+    public DateTime AvailabilityDate { get; set; }
+    public int UserId { get; set; }
+}

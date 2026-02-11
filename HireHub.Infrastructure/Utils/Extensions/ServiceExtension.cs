@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDriveRepository, DriveRepository>();
         services.AddScoped<IRoundRepository, RoundRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        services.AddScoped<IAvailbilityRepository, AvailabilityRepository>();
 
         return services;
     }

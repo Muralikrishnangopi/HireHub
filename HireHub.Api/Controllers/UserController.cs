@@ -202,6 +202,63 @@ public class UserController : ControllerBase
         }
     }
 
+
+    [RequireAuth([RoleName.Admin])]
+    [HttpPost("setAvailabilityforUser")]
+    [ProducesResponseType<Response<UserDTO>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> SetAvailability([FromBody] SetAvailabilityRequest request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(SetAvailability));
+
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new
+                    SetAvailabilityRequestValidator(baseResponse.Warnings)
+                    .ValidateAsync(request);
+
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+
+                var response = await _userService.SetAvailability(request);
+
+                baseResponse.Warnings.ForEach(response.Warnings.Add);
+
+                _transactionRepository.CommitTransaction();
+
+                _logger.LogInformation(LogMessage.EndMethod, nameof(SetAvailability));
+
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(SetAvailability), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
+
     #endregion
 
     #region Put API's
