@@ -19,6 +19,13 @@ public interface ICandidateRepository : IGenericRepository<Candidate>
     Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId);
 
     Task<DriveCandidate?> GetValidDriveCandidateForAttendance(int driveId, int candidateId, int currentUserId);
+   Task CreateReassignmentAsync(
+       int driveId,
+       int candidateId,
+       int previousUserId,
+       int newUserId,
+       bool requireApproval,
+       int requestedBy);
 
     #endregion
 

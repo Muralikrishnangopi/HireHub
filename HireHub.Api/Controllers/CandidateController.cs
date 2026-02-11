@@ -306,6 +306,73 @@ public class CandidateController : ControllerBase
             });
         }
     }
+
+    [RequireAuth([RoleName.Mentor])]
+    [HttpPost("candidate/reassignment")]
+    [ProducesResponseType<HireHub.Core.DTO.Response<RequestReassignmentDto>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> RequestReassignment(
+[FromBody] RequestReassignmentDto request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(RequestReassignment));
+
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new RequestReassignmentValidator(
+                    baseResponse.Warnings,
+                    _repoService,
+                    _userProvider
+                ).ValidateAsync(request);
+
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+
+                    return BadRequest(baseResponse);
+                }
+
+                var response = await _candidateService.RequestReassignmentAsync(
+                    request.driveId,
+                    request.candidateId,
+                    request.previousUserId,
+                    request.newUserId,
+                    request.requireApproval,
+                    int.Parse(_userProvider.CurrentUserId)
+                );
+
+                _transactionRepository.CommitTransaction();
+
+                _logger.LogInformation(LogMessage.EndMethod, nameof(RequestReassignment));
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors =
+                [
+                    new ValidationError
+            {
+                PropertyName = PropertyName.Main,
+                ErrorMessage = ex.Message
+            }
+                ]
+            });
+        }
+    }
     #endregion
 
     #region Put API's

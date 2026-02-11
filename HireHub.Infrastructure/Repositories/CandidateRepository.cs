@@ -1,6 +1,7 @@
 ﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
+using HireHub.Shared.Common.Exceptions;
 using HireHub.Shared.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -109,6 +110,64 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
         .FirstOrDefaultAsync();
 
         return driveCandidate;
+    }
+
+    public async Task CreateReassignmentAsync(
+        int driveId,
+        int candidateId,
+        int previousUserId,
+        int newUserId,
+        bool requireApproval,
+        int requestedBy)
+    {
+        var driveCandidate = await _context.DriveCandidates
+            .Include(dc => dc.Rounds)
+            .FirstOrDefaultAsync(dc =>
+                dc.DriveId == driveId &&
+                dc.CandidateId == candidateId);
+
+        if (driveCandidate == null)
+            throw new CommonException("Candidate not found in drive");
+
+        var previousPanel = await _context.DriveMembers.FirstOrDefaultAsync(dm =>
+            dm.DriveId == driveId &&
+            dm.UserId == previousUserId &&
+            dm.RoleId == 3);
+
+        var newPanel = await _context.DriveMembers.FirstOrDefaultAsync(dm =>
+            dm.DriveId == driveId &&
+            dm.UserId == newUserId &&
+            dm.RoleId == 3);
+
+        if (previousPanel == null || newPanel == null)
+            throw new CommonException("Invalid panel member");
+
+        var round = driveCandidate.Rounds
+            .FirstOrDefault(r => r.InterviewerId == previousPanel.DriveMemberId);
+
+        if (round == null)
+            throw new CommonException("Round not found");
+
+        var reassignment = new CandidateReassignment
+        {
+            DriveCandidateId = driveCandidate.DriveCandidateId,
+            PreviousUserId = previousPanel.DriveMemberId,
+            NewUserId = newPanel.DriveMemberId,
+            RequestedBy = requestedBy,
+            RequireApproval = requireApproval,
+            RequestedDate = DateTime.Now
+        };
+
+        _context.CandidateReassignments.Add(reassignment);
+
+        //if (!requireApproval)
+        //{
+        //    round.InterviewerId = newPanel.DriveMemberId;
+        //    reassignment.ApprovedBy = requestedBy;
+        //    reassignment.ApprovedDate = DateTime.Now;
+        //}
+        round.InterviewerId = reassignment.NewUserId;
+        await _context.SaveChangesAsync();
     }
     #endregion
 

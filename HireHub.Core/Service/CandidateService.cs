@@ -173,6 +173,35 @@ public class CandidateService
 
         return true;
     }
+    public async Task<Response<RequestReassignmentDto>> RequestReassignmentAsync(
+     int driveId,
+     int candidateId,
+     int previousUserId,
+     int newUserId,
+     bool requireApproval,
+     int requestedBy)
+    {
+        await _candidateRepository.CreateReassignmentAsync(
+            driveId,
+            candidateId,
+            previousUserId,
+            newUserId,
+            requireApproval,
+            requestedBy
+        );
+
+        return new Response<RequestReassignmentDto>
+        {
+            Data = new RequestReassignmentDto
+            {
+                driveId = driveId,
+                candidateId = candidateId,
+                previousUserId = previousUserId,
+                newUserId = newUserId,
+                requireApproval = requireApproval
+            }
+        };
+    }
 
     #endregion
 
