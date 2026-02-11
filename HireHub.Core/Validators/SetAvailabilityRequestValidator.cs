@@ -32,7 +32,20 @@ namespace HireHub.Core.Validators
             });
 
             RuleForEach(x => x.availabilityDates)
-           .Must(date => date.Date >= DateTime.UtcNow.Date.AddDays(7))
+             .Must(date =>
+             {
+                 var today = DateTime.UtcNow.Date;
+
+                 // Calculate next Monday
+                 int daysUntilNextMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+                 if (daysUntilNextMonday == 0)
+                     daysUntilNextMonday = 7;  // if today is Monday, next Monday is 7 days later
+
+                 var nextMonday = today.AddDays(daysUntilNextMonday);
+
+                 // Availability must be >= next Monday
+                 return date.Date >= nextMonday;
+             })
            .WithMessage(ResponseMessage.AvailabilityDatesInvalid);
         }
     }
