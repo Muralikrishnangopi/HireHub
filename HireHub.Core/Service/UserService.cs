@@ -142,7 +142,15 @@ public class UserService
             Data = result
         };
     }
-
+    public async Task<Response<List<UserDTO>>> GetUserOnAvailabaility(GetUserRequest request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetUserOnAvailabaility));
+        var response =await _availbilityRepository.GetUserForDriveAsync(request.DriveDate, CancellationToken.None);
+        var data = ConverToDTO(response);
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetUserOnAvailabaility));
+        return new() { Data = data };
+        
+    }
     #endregion
 
     #region Command Services

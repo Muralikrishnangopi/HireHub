@@ -21,6 +21,7 @@ namespace HireHub.Core.Validators
                 .NotNull()
                 .NotEmpty()
                 .WithMessage(ResponseMessage.AvailabilityDatesRequired);
+
             RuleFor(x => x).Custom((req, context) =>
             {
                 if (req.availabilityDates != null)

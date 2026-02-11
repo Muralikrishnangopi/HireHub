@@ -121,9 +121,10 @@ public static class ResponseMessage
         "Attendance allowed only for today's active drive.";
     public const string AttendanceAlreadyMarked =
         "Attendance already marked.";
-
+    public const string invalidDriveDate = "DriveDate must be greater than or equal to today";
     public const string AvailabilityDatesRequired = "Availability dates are required.";
     public const string AvailabilityDatesInvalid = "Availability date must be at least 7 days from today.";
+    public const string DriveDateInvalid = "Drive date is Invalid";
 }
 
 public static class InnerExceptionMessage

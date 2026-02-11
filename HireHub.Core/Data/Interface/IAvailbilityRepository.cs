@@ -10,7 +10,9 @@ namespace HireHub.Core.Data.Interface
 {
     public interface IAvailbilityRepository:IGenericRepository<Availability>
     {
-        
-        
+
+        #region DQL
+        Task<List<User>> GetUserForDriveAsync(DateTime date, CancellationToken cancellationToken = default);
+        #endregion
     }
 }

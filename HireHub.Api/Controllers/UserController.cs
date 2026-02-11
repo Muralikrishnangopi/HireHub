@@ -141,6 +141,36 @@ public class UserController : ControllerBase
         }
     }
 
+    [RequireAuth([RoleName.Hr,RoleName.Admin])]
+    [HttpGet("fetchUserDetailforDrive")]
+    [ProducesResponseType<Response<List<UserDTO>>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> FetchUserDetailforDrive([FromBody] GetUserRequest request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(FetchUserDetailforDrive));
+        try
+        {
+            var baseResponse = new BaseResponse();
+            var validator=new GetUserRequestValidator(baseResponse.Warnings).ValidateAsync(request);
+            var response = await _userService.GetUserOnAvailabaility(request);
+
+            _logger.LogInformation(LogMessage.EndMethod, nameof(FetchUserDetailforDrive));
+            return Ok(response);
+
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(FetchUserDetailforDrive), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
     #endregion
 
     #region Post API's
