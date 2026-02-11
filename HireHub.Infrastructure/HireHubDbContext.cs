@@ -23,6 +23,7 @@ public class HireHubDbContext : DbContext
     public DbSet<Round> Rounds => Set<Round>();
     public DbSet<CandidateReassignment> CandidateReassignments => Set<CandidateReassignment>();
     public DbSet<Feedback> Feedbacks => Set<Feedback>();
+    public DbSet<Availability> Availabilities => Set<Availability>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -870,6 +871,37 @@ public class HireHubDbContext : DbContext
             .HasColumnType("DATETIME")
             .HasDefaultValueSql("GETDATE()")
             .IsRequired();
+        });
+
+        modelBuilder.Entity<Availability>(entity =>
+        {
+            entity.ToTable("availability");
+            entity.HasKey(e => e.AvailabilityId);
+
+            entity.Property(x => x.AvailabilityId)
+                .HasColumnName("availability_id")
+                .HasColumnType("INT")
+                .IsRequired();
+
+            entity.Property(e => e.AvailabilityDate)
+                  .HasColumnName("availability_date")
+                  .HasColumnType("date")
+                  .IsRequired();
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id")
+                  .HasColumnType("INT")
+                  .IsRequired();
+
+            // FK relationship (if User table exists)
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.Availabilities)
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Prevent duplicate availability per user per day
+            entity.HasIndex(e => new { e.UserId, e.AvailabilityDate })
+                  .IsUnique();
         });
     }
 }

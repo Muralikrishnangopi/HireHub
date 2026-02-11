@@ -186,3 +186,12 @@ CREATE TABLE rounds (
     FOREIGN KEY (feedback_id) REFERENCES feedbacks(feedback_id) ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT UQ_DriveCandidateId_PanelId UNIQUE (drive_candidate_id, interviewer_id)
 );
+
+CREATE TABLE availability
+(
+    availability_id   INT IDENTITY(1,1) PRIMARY KEY,
+    availability_date DATE NOT NULL,
+    user_id           INT NOT NULL,
+    CONSTRAINT FK_Availability_User FOREIGN KEY (user_id) REFERENCES [users](user_id),
+    CONSTRAINT UX_Availability_User_Date UNIQUE (user_id, availability_date)
+);

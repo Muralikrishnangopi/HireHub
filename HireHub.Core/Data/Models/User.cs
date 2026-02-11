@@ -34,4 +34,5 @@ public class User : BaseEntity
     public ICollection<CandidateReassignment> ApprovedReassignments { get; set; } = new List<CandidateReassignment>();
     public ICollection<Request> RaisedRequests { get; set; } = new List<Request>();
     public ICollection<Request> ApprovedRequests { get; set; } = new List<Request>();
+    public ICollection<Availability> Availabilities { get; set; } = new List<Availability>();
 }
