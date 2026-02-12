@@ -1,4 +1,5 @@
-﻿using HireHub.Core.Data.Filters;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
@@ -145,8 +146,20 @@ public class UserService
     public async Task<Response<List<UserDTO>>> GetUserOnAvailabaility(GetUserRequest request)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetUserOnAvailabaility));
-        var response =await _availbilityRepository.GetUserForDriveAsync(request.DriveDate, CancellationToken.None);
-        var data = ConverToDTO(response);
+        var users =await _availbilityRepository.GetUserForDriveAsync(request.DriveDate, CancellationToken.None);
+        var availableUsers = new List<User>();
+
+        foreach (var user in users)
+        {
+            var isAssigned = await _driveRepository
+                .IsUserAssignedInAnyActiveDriveOnDateAsync(user.UserId, request.DriveDate, CancellationToken.None);
+
+            if (!isAssigned)
+            {
+                availableUsers.Add(user);
+            }
+        }
+        var data = ConverToDTO(availableUsers);
         _logger.LogInformation(LogMessage.EndMethod, nameof(GetUserOnAvailabaility));
         return new() { Data = data };
         
