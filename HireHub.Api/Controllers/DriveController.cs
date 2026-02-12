@@ -34,7 +34,7 @@ public class DriveController : ControllerBase
 
     public DriveController(DriveService driveService, IUserProvider userProvider,
         RepoService repoService, CommonService commonService,
-        ITransactionRepository transactionRepository, ILogger<DriveController> logger,RoundRepository roundRepository,
+        ITransactionRepository transactionRepository, ILogger<DriveController> logger,
         RoundService roundService
         )
     {
