@@ -146,14 +146,14 @@ public class UserController : ControllerBase
     [ProducesResponseType<Response<List<UserDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
     [ProducesResponseType<ErrorResponse>(500)]
-    public async Task<IActionResult> FetchUserDetailforDrive(DateTime request)
+    public async Task<IActionResult> FetchUserDetailforDrive(DateTime DriveDate)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(FetchUserDetailforDrive));
         try
         {
             var baseResponse = new BaseResponse();
-            var validator=new GetUserRequestValidator(baseResponse.Warnings).ValidateAsync(request);
-            var response = await _userService.GetUserOnAvailabaility(request);
+            var validator=new GetUserRequestValidator(baseResponse.Warnings).ValidateAsync(DriveDate);
+            var response = await _userService.GetUserOnAvailabaility(DriveDate);
 
             _logger.LogInformation(LogMessage.EndMethod, nameof(FetchUserDetailforDrive));
             return Ok(response);
