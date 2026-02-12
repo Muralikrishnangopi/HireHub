@@ -143,16 +143,16 @@ public class UserService
             Data = result
         };
     }
-    public async Task<Response<List<UserDTO>>> GetUserOnAvailabaility(GetUserRequest request)
+    public async Task<Response<List<UserDTO>>> GetUserOnAvailabaility(DateTime request)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetUserOnAvailabaility));
-        var users =await _availbilityRepository.GetUserForDriveAsync(request.DriveDate, CancellationToken.None);
+        var users =await _availbilityRepository.GetUserForDriveAsync(request, CancellationToken.None);
         var availableUsers = new List<User>();
 
         foreach (var user in users)
         {
             var isAssigned = await _driveRepository
-                .IsUserAssignedInAnyActiveDriveOnDateAsync(user.UserId, request.DriveDate, CancellationToken.None);
+                .IsUserAssignedInAnyActiveDriveOnDateAsync(user.UserId, request, CancellationToken.None);
 
             if (!isAssigned)
             {

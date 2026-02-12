@@ -142,11 +142,11 @@ public class UserController : ControllerBase
     }
 
     [RequireAuth([RoleName.Hr,RoleName.Admin])]
-    [HttpGet("fetchUserDetailforDrive")]
+    [HttpGet("fetchUserDetailforDrive/{DriveDate:datetime}")]
     [ProducesResponseType<Response<List<UserDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
     [ProducesResponseType<ErrorResponse>(500)]
-    public async Task<IActionResult> FetchUserDetailforDrive([FromBody] GetUserRequest request)
+    public async Task<IActionResult> FetchUserDetailforDrive(DateTime request)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(FetchUserDetailforDrive));
         try

@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace HireHub.Core.Validators
 {
-    public class GetUserRequestValidator:AbstractValidator<GetUserRequest>
+    public class GetUserRequestValidator:AbstractValidator<DateTime>
     {
         public GetUserRequestValidator(List<object> warnings)
         {
             RuleFor(x=>x).NotNull().WithMessage(ResponseMessage.DriveDateInvalid);
-            RuleFor(x => x.DriveDate)
+            RuleFor(x => x)
                   .GreaterThanOrEqualTo(DateTime.UtcNow.Date)
                   .WithMessage(ResponseMessage.invalidDriveDate);
 
