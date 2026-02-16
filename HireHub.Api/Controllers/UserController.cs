@@ -171,6 +171,36 @@ public class UserController : ControllerBase
         }
     }
 
+
+    [RequireAuth([RoleName.Hr])]
+    [HttpGet("fetchPanelDetailsforHr/{userId:int}")]
+    [ProducesResponseType<Response<List<UserDTO>>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> fetchPanelDetailsforHr(int userId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(FetchUserDetailforDrive));
+        try
+        {
+            var baseResponse = new BaseResponse();
+            var response = await _userService.GetPanelDetailsWithAvaialbility(userId);
+
+            _logger.LogInformation(LogMessage.EndMethod, nameof(FetchUserDetailforDrive));
+            return Ok(response);
+
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(FetchUserDetailforDrive), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
     #endregion
 
     #region Post API's

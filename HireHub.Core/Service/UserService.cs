@@ -164,6 +164,21 @@ public class UserService
         return new() { Data = data };
         
     }
+
+
+    public async Task<Response<List<UserDTO>>> GetPanelDetailsWithAvaialbility(int userId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetPanelDetailsWithAvaialbility));
+
+        var user =await _userRepository.GetByIdAsync(userId);
+
+        if(user is null)
+        {
+            throw new CommonException(ResponseMessage.UserNotFound);
+        }
+        var driveHr=await _driveRepository.GetDriveMembersWithDetailsAsync(new DriveMemberFilter { UserId=userId});
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetPanelDetailsWithAvaialbility));
+    }
     #endregion
 
     #region Command Services
