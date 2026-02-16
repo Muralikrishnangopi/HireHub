@@ -233,7 +233,7 @@ public class UserController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Panel,RoleName.Mentor,RoleName.Hr])]
     [HttpPost("setAvailabilityforUser")]
     [ProducesResponseType<Response<UserDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
