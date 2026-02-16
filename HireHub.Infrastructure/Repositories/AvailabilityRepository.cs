@@ -26,5 +26,13 @@ namespace HireHub.Infrastructure.Repositories
                         .Select(a => a.User!)                              // select the User from Availability
                         .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<Availability>> GetAvailabiltyBasedonUserId(List<int> UserIds,CancellationToken cancellationToken=default)
+        {
+            var availabilities = await _context.Availabilities
+                                .Where(a => UserIds.Contains(a.UserId))
+                                .ToListAsync();
+            return availabilities;
+        }
     }
 }

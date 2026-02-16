@@ -139,6 +139,10 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         if (filter.DriveId != null)
             query = query
                 .Where(dm => dm.DriveId == filter.DriveId);
+        if (filter.DriveIds != null && filter.DriveIds.Any())
+        {
+            query = query.Where(dm => filter.DriveIds.Contains(dm.DriveId));
+        }
 
         if (filter.UserId != null)
             query = query
@@ -151,6 +155,11 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         if (filter.DriveStatus != null)
             query = query
                 .Where(dm => dm.Drive!.Status == filter.DriveStatus);
+        if (filter.DriveStatuses != null && filter.DriveStatuses.Any())
+        {
+            query = query.Where(dm => filter.DriveStatuses.Contains(dm.Drive!.Status));
+        }
+
 
         if (!filter.IncludePastDrives)
             query = query
@@ -199,6 +208,10 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         if (filter.DriveStatus != null)
             query = query
                 .Where(dm => dm.Drive!.Status == filter.DriveStatus);
+        if (filter.DriveStatuses != null && filter.DriveStatuses.Any())
+        {
+            query = query.Where(dm => filter.DriveStatuses.Contains(dm.Drive!.Status));
+        }
 
         if (!filter.IncludePastDrives)
             query = query

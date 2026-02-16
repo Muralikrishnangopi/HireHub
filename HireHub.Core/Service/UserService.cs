@@ -166,7 +166,7 @@ public class UserService
     }
 
 
-    public async Task<Response<List<UserDTO>>> GetPanelDetailsWithAvaialbility(int userId)
+    public async Task<Response<List<PanelWithAvailabilityDTO>>> GetPanelDetailsWithAvaialbility(int userId)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(GetPanelDetailsWithAvaialbility));
 
@@ -176,8 +176,62 @@ public class UserService
         {
             throw new CommonException(ResponseMessage.UserNotFound);
         }
-        var driveHr=await _driveRepository.GetDriveMembersWithDetailsAsync(new DriveMemberFilter { UserId=userId});
+        var driveHr=await _driveRepository.GetDriveMembersWithDetailsAsync(new DriveMemberFilter { UserId = userId, DriveStatuses = new List<DriveStatus>() { DriveStatus.InProposal, DriveStatus.Started } });
+
+        var hrParticipatedDriveIds = driveHr.Select(x => x.DriveId).Distinct().ToList();
+        if(!hrParticipatedDriveIds.Any())
+        {
+            throw new CommonException(ResponseMessage.DriveMemberNotFound);
+        }
+        var panelMembers = await _driveRepository.GetDriveMembersWithDetailsAsync(
+                            new DriveMemberFilter
+                            {
+                                DriveIds = hrParticipatedDriveIds,
+                                Role = UserRole.Panel
+                            });
+        var panelUserIds = panelMembers.Select(pm => pm.UserId).Distinct().ToList();
+        var availabilities = await _availbilityRepository.GetAvailabiltyBasedonUserId(panelUserIds);
+           
+
+        var result = panelMembers
+    .GroupBy(pm => pm.UserId)
+    .Select(g => new PanelWithAvailabilityDTO
+    {
+        User = new UserDTO
+        {
+            UserId = g.Key,
+            FullName = g.First().User!.FullName,
+            Email = g.First().User.Email,
+            Phone = g.First().User.Phone,
+            IsActive = g.First().User.IsActive,
+            RoleId = g.First().User.RoleId,
+            RoleName =g.First().Role!.RoleName.ToString(),
+            CreatedDate = g.First().User.CreatedDate,
+            UpdatedDate = g.First().User.UpdatedDate
+        },
+        Drives = g.Select(d => new DriveDTO
+        {
+            DriveId = d.DriveId,
+            DriveName = d.Drive!.DriveName,
+            DriveDate = d.Drive.DriveDate,
+            DriveStatus = d.Drive.Status.ToString(),
+            CreatedBy = d.Drive.CreatedBy,
+            CreatorName = d.Drive.Creator!.FullName,
+            CreatedDate = d.Drive.CreatedDate,
+            TechnicalRounds = d.Drive.TechnicalRounds
+        }).ToList(),
+        Availabilities = availabilities
+            .Where(a => a.UserId == g.Key)
+            .Select(a => new AvailabilityDTO
+            {
+                AvailabilityId = a.AvailabilityId,
+                AvailabilityDate = a.AvailabilityDate,
+                UserId = a.UserId
+            }).ToList()
+    }).ToList();
+
         _logger.LogInformation(LogMessage.EndMethod, nameof(GetPanelDetailsWithAvaialbility));
+        return new Response<List<PanelWithAvailabilityDTO>>() { Data = result };
     }
     #endregion
 

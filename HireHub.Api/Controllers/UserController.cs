@@ -179,13 +179,13 @@ public class UserController : ControllerBase
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> fetchPanelDetailsforHr(int userId)
     {
-        _logger.LogInformation(LogMessage.StartMethod, nameof(FetchUserDetailforDrive));
+        _logger.LogInformation(LogMessage.StartMethod, nameof(fetchPanelDetailsforHr));
         try
         {
             var baseResponse = new BaseResponse();
             var response = await _userService.GetPanelDetailsWithAvaialbility(userId);
 
-            _logger.LogInformation(LogMessage.EndMethod, nameof(FetchUserDetailforDrive));
+            _logger.LogInformation(LogMessage.EndMethod, nameof(fetchPanelDetailsforHr));
             return Ok(response);
 
         }

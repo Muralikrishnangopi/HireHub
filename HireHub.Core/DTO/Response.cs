@@ -220,3 +220,10 @@ public class AvailabilityDTO
     public DateTime AvailabilityDate { get; set; }
     public int UserId { get; set; }
 }
+
+public class PanelWithAvailabilityDTO
+{
+    public UserDTO User { get; set; } = null!;                // Panel user info
+    public List<DriveDTO> Drives { get; set; } = new();       // Drives the panel is part of
+    public List<AvailabilityDTO> Availabilities { get; set; } = new(); // Panel's availability
+}

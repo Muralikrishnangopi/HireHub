@@ -13,6 +13,7 @@ namespace HireHub.Core.Data.Interface
 
         #region DQL
         Task<List<User>> GetUserForDriveAsync(DateTime date, CancellationToken cancellationToken = default);
+        Task<List<Availability>> GetAvailabiltyBasedonUserId(List<int> UserIds, CancellationToken cancellationToken = default);
         #endregion
     }
 }
