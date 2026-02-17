@@ -436,7 +436,7 @@ public class CandidateController : ControllerBase
 
     [RequireAuth([RoleName.Admin, RoleName.Panel])]
     [HttpGet("panelmember/assignedcandidates")]
-    [ProducesResponseType<Response<List<CandidateDTO>>>(200)]
+    [ProducesResponseType<Response<List<PanelAssignedCandidateDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
     [ProducesResponseType<ContentResult>(401)]
     [ProducesResponseType<ContentResult>(403)]

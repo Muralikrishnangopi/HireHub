@@ -227,3 +227,26 @@ public class PanelWithAvailabilityDTO
     public List<DriveDTO> Drives { get; set; } = new();       // Drives the panel is part of
     public List<AvailabilityDTO> Availabilities { get; set; } = new(); // Panel's availability
 }
+
+public class PanelAssignedCandidateDTO
+{
+    public int DriveId { get; set; }
+    public string DriveName { get; set; }
+    public DateTime DriveDate { get; set; }
+    public int CandidateId { get; set; }
+    public string FullName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string Phone { get; set; } = null!;
+    public string? Address { get; set; }
+    public string? College { get; set; }
+    public string? PreviousCompany { get; set; }
+    public string CandidateExperienceLevel { get; set; } = null!;
+    public List<string> TechStack { get; set; } = [];
+    public string? ResumeUrl { get; set; }
+    public string? LinkedInUrl { get; set; }
+    public string? GitHubUrl { get; set; }
+    public DateTime CreatedDate { get; set; }
+
+    public int userId { get; set; }
+    public string? userName { get; set; }
+}

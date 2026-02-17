@@ -1,6 +1,7 @@
 ﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
+using HireHub.Core.DTO;
 using HireHub.Shared.Common.Exceptions;
 using HireHub.Shared.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -77,19 +78,50 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
         await _context.Candidates.AddRangeAsync(candidates, cancellationToken);
     }
 
-    public async Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId)
+    public async Task<List<PanelAssignedCandidateDTO>> GetCandidatesByUserIdAsync(int userId)
     {
         return await _context.DriveMembers
-            .Where(dm=>dm.UserId==userId&&dm.RoleId==3)
-            .Join(
-                _context.Rounds,
-                dm => dm.DriveMemberId,
-                r => r.InterviewerId,
-                (dm, r) => r.DriveCandidate
-            )
-            .Select(dc=>dc.Candidate!)
-            .Distinct()
-            .ToListAsync();
+        .Where(dm => dm.UserId == userId && dm.RoleId == 3) // Panel role
+        .Join(
+            _context.Rounds,
+            dm => dm.DriveMemberId,
+            r => r.InterviewerId,
+
+            (dm, r) => new { dm, r }
+        )
+        .Join(
+            _context.Users,
+            x => x.dm.UserId,
+            u => u.UserId,
+            (x, u) => new { x.dm, x.r, u }
+        )
+        .Select(x => new PanelAssignedCandidateDTO
+        {
+            CandidateId = x.r.DriveCandidate!.Candidate!.CandidateId,
+            FullName = x.r.DriveCandidate.Candidate.FullName,
+            Email = x.r.DriveCandidate.Candidate.Email,
+            Phone = x.r.DriveCandidate.Candidate.Phone,
+            Address = x.r.DriveCandidate.Candidate.Address,
+            College = x.r.DriveCandidate.Candidate.College,
+            PreviousCompany = x.r.DriveCandidate.Candidate.PreviousCompany,
+            CandidateExperienceLevel = x.r.DriveCandidate.Candidate.ExperienceLevel.ToString(),
+            TechStack = x.r.DriveCandidate.Candidate.TechStack,
+            ResumeUrl = x.r.DriveCandidate.Candidate.ResumeUrl,
+            LinkedInUrl = x.r.DriveCandidate.Candidate.LinkedInUrl,
+            GitHubUrl = x.r.DriveCandidate.Candidate.GitHubUrl,
+            CreatedDate = x.r.DriveCandidate.Candidate.CreatedDate,
+
+            DriveId = x.r.DriveCandidate.Drive!.DriveId,
+            DriveName = x.r.DriveCandidate.Drive.DriveName,
+            DriveDate = x.r.DriveCandidate.Drive.DriveDate,
+
+            userId = x.u.UserId,
+            userName = x.u.FullName
+
+
+        })
+        .Distinct()
+        .ToListAsync();
     }
 
     public async Task<DriveCandidate?> GetValidDriveCandidateForAttendance(int driveId, int candidateId, int currentUserId)

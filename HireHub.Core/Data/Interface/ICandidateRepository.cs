@@ -1,5 +1,6 @@
 ﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Models;
+using HireHub.Core.DTO;
 using HireHub.Shared.Persistence.Interface;
 
 namespace HireHub.Core.Data.Interface;
@@ -16,7 +17,7 @@ public interface ICandidateRepository : IGenericRepository<Candidate>
 
     Task<bool> IsCandidateWithEmailOrPhoneExist(string email, string phone, CancellationToken cancellationToken = default);
 
-    Task<List<Candidate>> GetCandidatesByUserIdAsync(int userId);
+    Task<List<PanelAssignedCandidateDTO>> GetCandidatesByUserIdAsync(int userId);
 
     Task<DriveCandidate?> GetValidDriveCandidateForAttendance(int driveId, int candidateId, int currentUserId);
    Task CreateReassignmentAsync(
