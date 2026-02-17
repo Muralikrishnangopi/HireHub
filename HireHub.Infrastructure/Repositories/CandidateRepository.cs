@@ -116,8 +116,9 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
             DriveDate = x.r.DriveCandidate.Drive.DriveDate,
 
             userId = x.u.UserId,
-            userName = x.u.FullName
+            userName = x.u.FullName,
 
+            roundId=x.r.RoundId,
 
         })
         .Distinct()

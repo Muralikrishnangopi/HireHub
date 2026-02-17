@@ -230,6 +230,7 @@ public class PanelWithAvailabilityDTO
 
 public class PanelAssignedCandidateDTO
 {
+    public int roundId { get; set; }
     public int DriveId { get; set; }
     public string DriveName { get; set; }
     public DateTime DriveDate { get; set; }

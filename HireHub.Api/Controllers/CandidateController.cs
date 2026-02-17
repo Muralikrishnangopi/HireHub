@@ -96,7 +96,7 @@ public class CandidateController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Panel])]
     [HttpGet("fetch/{candidateId:int}")]
     [ProducesResponseType<Response<CandidateDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
