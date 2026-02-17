@@ -23,10 +23,10 @@ namespace HireHub.Core.Validators
             RuleFor(e => e).Custom((request, context) =>
             {
                 // 1️⃣ Logged-in user check
-                var currentUserId = userProvider.CurrentUserId;
+                var currentUserId = int.Parse(userProvider.CurrentUserId);
                 var currentUserRole = userProvider.CurrentUserRole;
  
-                if (string.IsNullOrEmpty(currentUserId))
+                if (currentUserId<=0)
                 {
                     context.AddFailure(PropertyName.Main, ResponseMessage.Unauthorized);
                     return;
