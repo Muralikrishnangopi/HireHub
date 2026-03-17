@@ -14,6 +14,7 @@ public interface IDriveRepository : IGenericRepository<Drive>
     Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default);
 
     Task<bool> IsUserAssignedInAnyActiveDriveOnDateAsync(int userId, DateTime driveDate, CancellationToken cancellationToken = default);
+    Task<bool> IsUserAssignedWithDriveId(int userId, int driveId, CancellationToken cancellationToken = default);
 
     Task<Drive?> GetDriveWithConfigAsync(int driveId, CancellationToken cancellationToken = default);
 

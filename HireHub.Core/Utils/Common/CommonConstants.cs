@@ -125,6 +125,8 @@ public static class ResponseMessage
     public const string AvailabilityDatesRequired = "Availability dates are required.";
     public const string AvailabilityDatesInvalid = "Availability date must be at least 7 days from today.";
     public const string DriveDateInvalid = "Drive date is Invalid";
+    public const string UserMustbeInSameDrive = "Hr Must be in the Same Drive ";
+    public const string SameInterviewerId = "Interviewer should be different";
 }
 
 public static class InnerExceptionMessage

@@ -729,6 +729,64 @@ public class DriveController : ControllerBase
         }
     }
 
+
+
+    [RequireAuth([RoleName.Hr])]
+    //[RequirePermission(UserAction.Drive, ActionType.Update)]
+    [HttpPost("moveToNextRound")]
+    [ProducesResponseType<Response<FeedbackDTO>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> MoveToNextRound([FromBody] MovetoNextRoundRequest request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(MoveToNextRound));
+
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new MovetoNextRoundValidator(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(request);
+
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+
+                var currentUserId = int.Parse(_userProvider.CurrentUserId);
+                var response = await _driveService.AddFeedback(request, currentUserId);
+
+                baseResponse.Warnings.ForEach(response.Warnings.Add);
+
+                _transactionRepository.CommitTransaction();
+
+                _logger.LogInformation(LogMessage.EndMethod, nameof(MoveToNextRound));
+
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(AddFeedback), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
     #endregion
 
     #region Put API's

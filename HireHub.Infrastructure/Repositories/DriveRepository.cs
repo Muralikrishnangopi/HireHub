@@ -388,6 +388,13 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> IsUserAssignedWithDriveId(int userId, int driveId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.DriveMembers
+            .Where(dm => dm.UserId == userId && dm.DriveId == driveId).AnyAsync();
+            
+    }
 
     #endregion
 

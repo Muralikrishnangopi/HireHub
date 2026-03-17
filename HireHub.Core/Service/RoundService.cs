@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Presentation;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
+using HireHub.Core.Utils.Common;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -45,11 +46,11 @@ namespace HireHub.Core.Service
             {
                 var round = new Round
                 {
-                    DriveCandidateId = driveCandidates[i].DriveCandidateId,
-                    InterviewerId = interviewerIds[i % interviewerIds.Count].DriveMemberId, // ✅ FIX
-                    RoundType = RoundType.Tech1,
-                    Status = RoundStatus.Scheduled,
-                    Result = RoundResult.Pending
+                        DriveCandidateId = driveCandidates[i].DriveCandidateId,
+                        InterviewerId = interviewerIds[i % interviewerIds.Count].DriveMemberId, // ✅ FIX
+                        RoundType = RoundType.Tech1,
+                        Status = RoundStatus.Scheduled,
+                        Result = RoundResult.Pending
                 };
                 await _roundRepository.AddAsync(round, CancellationToken.None);
                 await _saveRepository.SaveChangesAsync();
@@ -70,6 +71,31 @@ namespace HireHub.Core.Service
                 .AssignNewInterview(round, newInterviewerId);
 
             await _saveRepository.SaveChangesAsync();
+
+        }
+        public async Task<Response<RoundDTO>> MovetoNextRoundAsync(MovetoNextRoundRequest movetoNextRoundRequest)
+        {
+            _logger.LogInformation(LogMessage.StartMethod, nameof(MovetoNextRoundAsync));
+            var rounds =await  _roundRepository.GetRoundsForDriveCandidate(movetoNextRoundRequest.DriveCandidateId);
+            rounds[rounds.Count-1]!.Status = RoundStatus.Completed;
+            rounds[rounds.Count-1].Result = RoundResult.Selected;
+            var driveId = rounds[0].DriveCandidate!.DriveId;
+            var drive = await _driveRepository.GetByIdAsync(driveId);
+            var totalRounds = drive!.TechnicalRounds;
+            var newRound = new Round() {
+                DriveCandidateId = rounds[0].DriveCandidate!.DriveCandidateId,
+                InterviewerId = movetoNextRoundRequest.DriveMemberId,
+                RoundType = rounds.Count==totalRounds?RoundType.Hr:RoundType.Tech2,
+                Status = RoundStatus.Scheduled,
+                Result = RoundResult.Pending
+            };
+            await _roundRepository.AddAsync(newRound,CancellationToken.None);
+            var response = Helper.Map<Round, RoundDTO>(newRound);
+
+            _saveRepository.SaveChanges();
+            _logger.LogInformation(LogMessage.EndMethod, nameof(MovetoNextRoundAsync));
+
+            return new Response<RoundDTO>{ Data = response };
 
         }
     }
