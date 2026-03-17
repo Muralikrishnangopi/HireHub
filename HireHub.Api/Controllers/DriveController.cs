@@ -763,7 +763,7 @@ public class DriveController : ControllerBase
                 }
 
                 var currentUserId = int.Parse(_userProvider.CurrentUserId);
-                var response = await _driveService.AddFeedback(request, currentUserId);
+                var response = await _roundService.MovetoNextRoundAsync(request);
 
                 baseResponse.Warnings.ForEach(response.Warnings.Add);
 
