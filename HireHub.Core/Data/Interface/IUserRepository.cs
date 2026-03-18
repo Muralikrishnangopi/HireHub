@@ -1,5 +1,6 @@
 ﻿using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Models;
+using HireHub.Core.DTO;
 using HireHub.Shared.Persistence.Interface;
 
 namespace HireHub.Core.Data.Interface;
@@ -18,6 +19,7 @@ public interface IUserRepository : IGenericRepository<User>
 
     Task<bool> IsUserWithEmailOrPhoneExist(string email, string phone);
 
+    Task<List<PanelUserProjection>> GetPanelUsersByUserIdAsync(int userId);
     #endregion
 
     #region DML

@@ -90,10 +90,17 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
             (dm, r) => new { dm, r }
         )
         .Join(
+            _context.DriveCandidates,
+            x=>x.r.DriveCandidateId,
+            dc=>dc.DriveCandidateId,
+            (x, dc) => new {x.dm,x.r, dc}
+        )
+
+        .Join(
             _context.Users,
             x => x.dm.UserId,
             u => u.UserId,
-            (x, u) => new { x.dm, x.r, u }
+            (x, u) => new { x.dm, x.r,x.dc, u }
         )
         .Select(x => new PanelAssignedCandidateDTO
         {
@@ -110,6 +117,8 @@ public class CandidateRepository : GenericRepository<Candidate>,  ICandidateRepo
             LinkedInUrl = x.r.DriveCandidate.Candidate.LinkedInUrl,
             GitHubUrl = x.r.DriveCandidate.Candidate.GitHubUrl,
             CreatedDate = x.r.DriveCandidate.Candidate.CreatedDate,
+
+            attendanceStatus=x.dc.Attendance_Status,
 
             DriveId = x.r.DriveCandidate.Drive!.DriveId,
             DriveName = x.r.DriveCandidate.Drive.DriveName,

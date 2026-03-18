@@ -692,11 +692,11 @@ public class DriveService
         if (request.ContainsKey(JOPropertyName.OverallRating))
             feedback.OverallRating = request[JOPropertyName.OverallRating]!.ToObject<int?>();
         if (request.ContainsKey(JOPropertyName.TechnicalSkill))
-            feedback.TechnicalSkill = request[JOPropertyName.TechnicalSkill]!.ToObject<int?>();
+            feedback.TechnicalSkill = request[JOPropertyName.TechnicalSkill]!.ToObject<string?>();
         if (request.ContainsKey(JOPropertyName.Communication))
-            feedback.Communication = request[JOPropertyName.Communication]!.ToObject<int?>();
+            feedback.Communication = request[JOPropertyName.Communication]!.ToObject<string?>();
         if (request.ContainsKey(JOPropertyName.ProblemSolving))
-            feedback.ProblemSolving = request[JOPropertyName.ProblemSolving]!.ToObject<int?>();
+            feedback.ProblemSolving = request[JOPropertyName.ProblemSolving]!.ToObject<string?>();
         if (request.ContainsKey(JOPropertyName.OverallFeedback))
             feedback.OverallFeedback = request[JOPropertyName.OverallFeedback]!.ToString();
         if (request.ContainsKey(JOPropertyName.Recommendation))

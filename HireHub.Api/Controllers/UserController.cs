@@ -113,7 +113,7 @@ public class UserController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Mentor])]
+    [RequireAuth([RoleName.Mentor,RoleName.Hr,RoleName.Panel])]
     [HttpGet("fetchCandidatesDetail/{mentorId}")]
     [ProducesResponseType<Response<List<DriveCandidateDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -192,6 +192,33 @@ public class UserController : ControllerBase
         catch (CommonException ex)
         {
             _logger.LogWarning(LogMessage.EndMethodException, nameof(FetchUserDetailforDrive), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+    [RequireAuth([RoleName.Hr])]
+    [HttpGet("panel-availability")]
+    [ProducesResponseType<Core.DTO.Response<List<PanelUserAvailabilityDTO>>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> GetPanelAvailability()
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetPanelAvailability));
+        try
+        {
+            var baseResponse = new BaseResponse();
+            var userId = int.Parse(_userProvider.CurrentUserId);
+            var response = await _userService.GetPanelAvailabilityAsync(userId);
+            _logger.LogInformation(LogMessage.EndMethod, nameof(fetchPanelDetailsforHr));
+            return Ok(response);
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(GetPanelAvailability), ex.Message);
             return BadRequest(new BaseResponse()
             {
                 Errors = [

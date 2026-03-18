@@ -116,15 +116,20 @@ public class UserService
                         Address = dc.Candidate.Address,
                         College = dc.Candidate.College,
                         PreviousCompany = dc.Candidate.PreviousCompany,
+                        Skills=dc.Candidate.TechStack,
 
                         // DriveCandidate
                         AttendanceStatus = dc.Attendance_Status,
                         Status = dc.Status,
 
                         // Round
+                        RoundId=latestRound!.RoundId,
                         RoundType = latestRound?.RoundType,
                         RoundStatus = latestRound?.Status,
                         RoundResult = latestRound?.Result,
+
+                        //drivecandidate
+                        DriveCandidateId=dc.DriveCandidateId,
 
                         // Interviewer (User)
                         InterviewerId = latestRound?.Interviewer?.UserId,
@@ -368,6 +373,59 @@ public class UserService
         return new Response<List<AvailabilityDTO>> { Data = response };
 
     }
+
+    public async Task<Response<List<PanelUserAvailabilityDTO>>> GetPanelAvailabilityAsync(int userId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(PanelUserAvailabilityDTO));
+
+        var data = await _userRepository.GetPanelUsersByUserIdAsync(userId);
+
+        if (data == null || !data.Any())
+        {
+            _logger.LogInformation("No panel users found for userId: {UserId}", userId);
+
+            return new Response<List<PanelUserAvailabilityDTO>>
+            {
+                Data = new List<PanelUserAvailabilityDTO>()
+            };
+        }
+
+        // Next Week (Monday → Sunday)
+        var today = DateTime.UtcNow.Date;
+
+        int daysToNextMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+        if (daysToNextMonday == 0)
+            daysToNextMonday = 7;
+
+        var nextMonday = today.AddDays(daysToNextMonday);
+        var nextSunday = nextMonday.AddDays(6);
+
+        var result = data.Select(x => new PanelUserAvailabilityDTO
+        {
+            UserId = x.UserId,
+            FullName = x.FullName,
+            Email = x.Email,
+            DriveName = x.DriveName,
+            DriveDate = x.DriveDate,
+
+            AvailableDates = x.Availabilities != null
+                ? x.Availabilities
+                    .Where(a => a.AvailabilityDate.Date >= nextMonday &&
+                                a.AvailabilityDate.Date <= nextSunday)
+                    .Select(a => a.AvailabilityDate)
+                    .ToList()
+                : new List<DateTime>()
+
+        }).ToList();
+
+        _logger.LogInformation(LogMessage.EndMethod, nameof(PanelUserAvailabilityDTO));
+
+        return new Response<List<PanelUserAvailabilityDTO>>
+        {
+            Data = result
+        };
+    }
+
 
     #endregion
 

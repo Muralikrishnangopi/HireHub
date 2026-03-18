@@ -16,13 +16,17 @@ namespace HireHub.Core.DTO
         public string? Address { get; set; }
         public string? College { get; set; }
         public string? PreviousCompany { get; set; }
-
+        public List<string>? Skills { get; set; } = [];
         public string? AttendanceStatus { get; set; }
         public CandidateStatus Status { get; set; }
+        public int RoundId { get; set; }
 
         public RoundType? RoundType { get; set; }
         public RoundStatus? RoundStatus { get; set; }
         public RoundResult? RoundResult { get; set; }
+
+        public int DriveCandidateId { get; set; }
+
         public int? InterviewerId { get; set; }
         public string? InterviewerName { get; set; }
         public string? InterviewerEmail { get; set; }

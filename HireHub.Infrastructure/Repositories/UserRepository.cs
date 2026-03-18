@@ -81,6 +81,42 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _context.Users.AnyAsync(e => e.Email == email || e.Phone == phone);
     }
 
+    public async Task<List<PanelUserProjection>> GetPanelUsersByUserIdAsync(int userId)
+    {
+        var driveData = await (
+            from dm in _context.DriveMembers
+            join d in _context.Drives on dm.DriveId equals d.DriveId
+            where dm.UserId == userId
+            select new { dm.DriveId, d.DriveName, d.DriveDate }
+        ).FirstOrDefaultAsync();
+
+        if (driveData == null)
+            return new List<PanelUserProjection>();
+
+        var result = await _context.Users
+        .Where(u => _context.DriveMembers
+            .Any(dm => dm.UserId == u.UserId
+                    && dm.DriveId == driveData.DriveId
+                    && dm.RoleId == 3))
+        .Select(u => new PanelUserProjection
+        {
+            UserId = u.UserId,
+            FullName = u.FullName,
+            Email = u.Email,
+            DriveName = driveData.DriveName,
+            DriveDate = driveData.DriveDate,
+
+            Availabilities = _context.Availabilities
+                .Where(a => a.UserId == u.UserId)
+                .ToList()
+        })
+        .ToListAsync();
+
+        return result;
+    }
+
+
+
     #endregion
 
     #region DML

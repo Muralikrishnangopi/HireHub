@@ -671,7 +671,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr,RoleName.Panel])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPost("feedback/add")]
     [ProducesResponseType<Response<FeedbackDTO>>(200)]
@@ -1211,12 +1211,12 @@ public class DriveController : ControllerBase
     
     [RequireAuth([RoleName.Admin, RoleName.Hr])]
     // [RequirePermission(UserAction.Drive, ActionType.Update)]
-    [HttpPost("AutoAssign/panelmember")]
+    [HttpPost("AutoAssign/panelmember/{driveId}")]
     [ProducesResponseType<Response<AutoAssignDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
     [ProducesResponseType<ErrorResponse>(500)]
 
-    public async Task<IActionResult> AutoAssignPanel([FromQuery] int driveId)
+    public async Task<IActionResult> AutoAssignPanel([FromRoute] int driveId)
     {
         _logger.LogInformation(LogMessage.StartMethod, nameof(driveId));
         try

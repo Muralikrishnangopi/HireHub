@@ -194,9 +194,9 @@ public class FeedbackDTO
 {
     public int FeedbackId { get; set; }
     public int? OverallRating { get; set; }
-    public int? TechnicalSkill { get; set; }
-    public int? Communication { get; set; }
-    public int? ProblemSolving { get; set; }
+    public string? TechnicalSkill { get; set; }
+    public string? Communication { get; set; }
+    public string? ProblemSolving { get; set; }
     public string? OverallFeedback { get; set; }
     public string CandidateRecommendation { get; set; } = null!;
     public DateTime SubmittedDate { get; set; }
@@ -241,6 +241,8 @@ public class PanelAssignedCandidateDTO
     public string? Address { get; set; }
     public string? College { get; set; }
     public string? PreviousCompany { get; set; }
+
+    public string? attendanceStatus { get; set; }
     public string CandidateExperienceLevel { get; set; } = null!;
     public List<string> TechStack { get; set; } = [];
     public string? ResumeUrl { get; set; }

@@ -79,23 +79,23 @@ public class AddFeedbackRequestValidator : AbstractValidator<AddFeedbackRequest>
                     return;
                 }
 
-                if (req.TechnicalSkill != null && !Options.RatingNumbers.Contains((int)req.TechnicalSkill))
-                {
-                    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
-                    return;
-                }
+                //if (req.TechnicalSkill != null && !Options.RatingNumbers.Contains((int)req.TechnicalSkill))
+                //{
+                //    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
+                //    return;
+                //}
 
-                if (req.Communication != null && !Options.RatingNumbers.Contains((int)req.Communication))
-                {
-                    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
-                    return;
-                }
+                //if (req.Communication != null && !Options.RatingNumbers.Contains((int)req.Communication))
+                //{
+                //    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
+                //    return;
+                //}
 
-                if (req.ProblemSolving != null && !Options.RatingNumbers.Contains((int)req.ProblemSolving))
-                {
-                    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
-                    return;
-                }
+                //if (req.ProblemSolving != null && !Options.RatingNumbers.Contains((int)req.ProblemSolving))
+                //{
+                //    context.AddFailure(PropertyName.Main, ResponseMessage.InvalidRatingNumber);
+                //    return;
+                //}
             });
     }
 }
