@@ -218,10 +218,14 @@ public class CandidateService
         });
         return candidateDTOs;
     }
-    public async Task<List<PanelAssignedCandidateDTO>> GetCandidatesByUserIdAsync(int userId)
+    public async Task<Response<List<PanelAssignedCandidateDTO>>> GetCandidatesByUserIdAsync(int userId)
     {
         // Business rules can go here if needed
-        return await _candidateRepository.GetCandidatesByUserIdAsync(userId);
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetCandidatesByUserIdAsync));
+         var response=await _candidateRepository.GetCandidatesByUserIdAsync(userId);
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetCandidatesByUserIdAsync));
+
+        return new() { Data=response};
     }
     #endregion
 }
