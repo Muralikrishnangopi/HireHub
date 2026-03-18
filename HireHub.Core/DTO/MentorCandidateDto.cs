@@ -21,9 +21,9 @@ namespace HireHub.Core.DTO
         public CandidateStatus Status { get; set; }
         public int RoundId { get; set; }
 
-        public RoundType? RoundType { get; set; }
-        public RoundStatus? RoundStatus { get; set; }
-        public RoundResult? RoundResult { get; set; }
+        public string? RoundType { get; set; }
+        public string? RoundStatus { get; set; }
+        public string? RoundResult { get; set; }
 
         public int DriveCandidateId { get; set; }
 

@@ -5,6 +5,7 @@ using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
 using HireHub.Core.Utils.Common;
+using HireHub.Shared.Common.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -31,14 +32,17 @@ namespace HireHub.Core.Service
 
         public async Task<List<RoundDTO>> AutoPanelAssign(int driveId)
         {
+            _logger.LogInformation(LogMessage.StartMethod, nameof(AutoPanelAssign));
+
+
             var driveCandidates = await _roundRepository.GetAllDriveCandidates(driveId);
             var interviewerIds = await _roundRepository.GetAllDriveMember(driveId);
 
             if (!driveCandidates.Any())
-                throw new Exception("No candidates found");
+                throw new CommonException(ResponseMessage.CandidateNotFound);
 
             if (!interviewerIds.Any())
-                throw new Exception("No interviewers found");
+                throw new Exception(ResponseMessage.NoPanelMembers);
 
 
 
@@ -55,6 +59,8 @@ namespace HireHub.Core.Service
                 await _roundRepository.AddAsync(round, CancellationToken.None);
                 await _saveRepository.SaveChangesAsync();
             }
+            _logger.LogInformation(LogMessage.EndMethod, nameof(AutoPanelAssign));
+
             return new();
 
         }

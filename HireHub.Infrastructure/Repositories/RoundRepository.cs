@@ -156,7 +156,7 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
 
     public async Task<Round?> GetRoundByIdWithDetails(int roundId, CancellationToken cancellationToken = default)
     {
-        return await _context.Rounds
+        return await _context.Rounds.Where(i=>i.RoundId==roundId)
             .Include(e => e.Interviewer)
             .Include(e => e.DriveCandidate)
             .FirstOrDefaultAsync(cancellationToken);

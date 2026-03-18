@@ -124,9 +124,9 @@ public class UserService
 
                         // Round
                         RoundId=latestRound!.RoundId,
-                        RoundType = latestRound?.RoundType,
-                        RoundStatus = latestRound?.Status,
-                        RoundResult = latestRound?.Result,
+                        RoundType = latestRound?.RoundType.ToString(),
+                        RoundStatus = latestRound?.Status.ToString(),
+                        RoundResult = latestRound?.Result.ToString(),
 
                         //drivecandidate
                         DriveCandidateId=dc.DriveCandidateId,
