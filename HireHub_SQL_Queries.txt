@@ -138,6 +138,7 @@ CREATE TABLE drive_candidates (
     drive_id INT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'Pending',  -- Pending, Selected, Rejected
     status_set_by INT NULL,
+    attendanceStatus varchar(32) DeFault 'Null',
     created_date DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (candidate_id) REFERENCES candidates(candidate_id) ON UPDATE CASCADE ON DELETE NO ACTION,
     FOREIGN KEY (drive_id) REFERENCES drives(drive_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -165,9 +166,9 @@ CREATE TABLE candidate_reassignments (
 CREATE TABLE feedbacks (
     feedback_id INT IDENTITY(1,1) PRIMARY KEY,
     overall_rating INT NOT NULL,
-    technical_skill INT NULL,
-    communication INT NULL,
-    problem_solving INT NULL,
+    technical_skill varchar(max) NULL,
+    communication varchar(max) NULL,
+    problem_solving varchar(max) NULL,
     overall_feedback TEXT,
     recommendation VARCHAR(20) NOT NULL DEFAULT 'NA', -- NA, Hire, May be, No Hire
     submitted_date DATETIME DEFAULT GETDATE(),
