@@ -165,7 +165,7 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
     public Task<List<Round>> GetRoundsForDriveCandidate(int driveCandidateId, CancellationToken cancellationToken = default)
     {
         return _context.Rounds
-            .Where(e => e.DriveCandidateId == driveCandidateId)
+            .Where(e => e.DriveCandidateId == driveCandidateId).Include(r => r.DriveCandidate)
             .ToListAsync(cancellationToken);
     }
 

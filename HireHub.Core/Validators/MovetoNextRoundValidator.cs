@@ -54,6 +54,12 @@ namespace HireHub.Core.Validators
                         return;
                     }
                 }
+                if (rounds[rounds.Count-1].Status==RoundStatus.Completed)
+                {
+                    context.AddFailure(PropertyName.Main, ResponseMessage.InterviewRoundCompleted);
+
+                    return;
+                }
 
             });
 

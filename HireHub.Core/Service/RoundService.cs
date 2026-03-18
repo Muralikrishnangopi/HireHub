@@ -96,9 +96,10 @@ namespace HireHub.Core.Service
                 Result = RoundResult.Pending
             };
             await _roundRepository.AddAsync(newRound,CancellationToken.None);
-            var response = Helper.Map<Round, RoundDTO>(newRound);
 
             _saveRepository.SaveChanges();
+            var response = await _roundRepository.GetByIdAsDtoAsync(newRound.RoundId);
+
             _logger.LogInformation(LogMessage.EndMethod, nameof(MovetoNextRoundAsync));
 
             return new Response<RoundDTO>{ Data = response };
