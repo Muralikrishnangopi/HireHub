@@ -173,6 +173,16 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
 {
     var driveCandidates = await _context.DriveCandidates
                             .Where(dc => dc.DriveId == driveId)
+                            .Select(dc=>new DriveCandidate
+                            {
+                                DriveCandidateId=dc.DriveCandidateId,
+                                CandidateId=dc.CandidateId,
+                                DriveId=dc.DriveId, 
+                                Status=dc.Status,
+                                StatusSetBy=dc.StatusSetBy,
+                                CreatedDate=dc.CreatedDate,
+                                Attendance_Status=dc.Attendance_Status??"Not Marked"
+                            })
                             .ToListAsync();
     return driveCandidates;
 }

@@ -99,7 +99,7 @@ public class UserService
             DriveDate = d.DriveDate,
 
             Candidates = d.DriveCandidates
-                .Where(dc => dc.Candidate != null)
+                .Where(dc => dc.Candidate != null && dc.Rounds.Any())
                 .Select(dc =>
                 {
                     var latestRound = dc.Rounds
@@ -123,7 +123,7 @@ public class UserService
                         Status = dc.Status,
 
                         // Round
-                        RoundId=latestRound!.RoundId,
+                        RoundId=latestRound?.RoundId??0,
                         RoundType = latestRound?.RoundType.ToString(),
                         RoundStatus = latestRound?.Status.ToString(),
                         RoundResult = latestRound?.Result.ToString(),
@@ -437,7 +437,7 @@ public class UserService
         users.ForEach(user =>
         {
             var userDTO = Helper.Map<User, UserDTO>(user);
-            userDTO.RoleName = user.Role!.RoleName.ToString();
+            userDTO.RoleName = user.Role !=null ? user.Role.RoleName.ToString():"Unknown";
             userDTOs.Add(userDTO);
         });
         return userDTOs;

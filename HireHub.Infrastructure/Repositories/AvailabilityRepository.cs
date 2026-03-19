@@ -22,7 +22,8 @@ namespace HireHub.Infrastructure.Repositories
         {
             return await _context.Availabilities
                         .Where(a => a.AvailabilityDate.Date == date.Date) // compare dates only
-                        .Include(a => a.User)                              // include the User entity
+                        .Include(a => a.User)
+                            .ThenInclude(r=>r.Role)// include the User entity
                         .Select(a => a.User!)                              // select the User from Availability
                         .ToListAsync(cancellationToken);
         }

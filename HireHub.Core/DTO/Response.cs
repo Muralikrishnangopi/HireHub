@@ -1,4 +1,5 @@
-﻿using HireHub.Shared.Common.Models;
+﻿using HireHub.Core.Data.Models;
+using HireHub.Shared.Common.Models;
 
 namespace HireHub.Core.DTO;
 
@@ -39,6 +40,8 @@ public class UserDTO
     public string Phone { get; set; } = null!;
     public bool IsActive { get; set; } = true;
     public int RoleId { get; set; }
+
+    public Role? Role { get; set; }
     public string RoleName { get; set; } = null!;
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
@@ -180,10 +183,10 @@ public class RoundDTO
     public string DriveStatus { get; set; } = null!;
     public int CandidateId { get; set; }
     public string CandidateName { get; set; } = null!;
-    public string CandidateEmail { get; set; } = null!;
+    public string? CandidateEmail { get; set; }
     public int UserId { get; set; }
     public string UserName { get; set; } = null!;
-    public string UserEmail { get; set; } = null!;
+    public string? UserEmail { get; set; }
     public string Type { get; set; } = null!;
     public string RoundStatus { get; set; } = null!;
     public string RoundResult { get; set; } = null!;
