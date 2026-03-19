@@ -110,12 +110,18 @@ namespace HireHub.Core.Service
         {
             _logger.LogInformation(LogMessage.StartMethod,nameof(UpdateCandidateStatusAsync));
             var round = await _roundRepository.GetByIdAsync(request.RoundId);
-            round!.Status = (RoundStatus)Enum.Parse(typeof(RoundStatus), request.CandidateStatus!, true);
+            if (!Enum.TryParse<RoundResult>(request.CandidateStatus, true, out var result))
+                throw new CommonException(ResponseMessage.InvalidCandidateStatus);
+            round!.Result = result;
+            round.Status = RoundStatus.Completed;
             var driveCandidate = await _driveRepository.GetDriveCandidateWithIdAsync(round.DriveCandidateId);
-            driveCandidate!.Status = (CandidateStatus)Enum.Parse(typeof(CandidateStatus), request.CandidateStatus!, true);
+
+            driveCandidate!.Status = (CandidateStatus)Enum.Parse(
+                    typeof(CandidateStatus),
+                    request.CandidateStatus!,
+                    true); 
             await _saveRepository.SaveChangesAsync();
             var response = await _roundRepository.GetByIdAsDtoAsync(request.RoundId);
-            _logger.LogInformation(LogMessage.EndMethod,nameof(UpdateCandidateStatusAsync));
             return new() { Data = response };
 
         }
