@@ -443,7 +443,7 @@ public class CandidateController : ControllerBase
     [ProducesResponseType<ErrorResponse>(500)]
     public async Task<IActionResult> GetPanelAssignedCandidates()
     {
-        _logger.LogInformation(LogMessage.StartMethod);
+        _logger.LogInformation(LogMessage.StartMethod,nameof(GetPanelAssignedCandidates));
  
         try
         {
@@ -468,7 +468,7 @@ public class CandidateController : ControllerBase
                 }
                 var currentUserId = int.Parse(_userProvider.CurrentUserId);//GetPanelAssignedCandidatesRequestValidator
                 var response = await _candidateService.GetCandidatesByUserIdAsync(currentUserId);
-                _logger.LogInformation(LogMessage.EndMethod);
+                _logger.LogInformation(LogMessage.EndMethod,nameof(GetPanelAssignedCandidates));
  
                 return Ok(response);
             }

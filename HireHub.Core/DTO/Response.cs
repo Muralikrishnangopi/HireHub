@@ -41,7 +41,7 @@ public class UserDTO
     public bool IsActive { get; set; } = true;
     public int RoleId { get; set; }
 
-    public Role? Role { get; set; }
+    //public Role? Role { get; set; }
     public string RoleName { get; set; } = null!;
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
