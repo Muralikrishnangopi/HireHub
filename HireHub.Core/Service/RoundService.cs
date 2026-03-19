@@ -106,9 +106,10 @@ namespace HireHub.Core.Service
             return new Response<RoundDTO>{ Data = response };
 
         }
-        public async Task<Response<RoundDTO>> UpdateCandidateStatusAsync(CandidateStatusUpdateRequest request)
+        public async Task<Response<RoundDTO>> UpdateCandidateStatusAsync(CandidateStatusUpdateRequest request,string userId)
         {
             _logger.LogInformation(LogMessage.StartMethod,nameof(UpdateCandidateStatusAsync));
+            int UserId = int.Parse(userId);
             var round = await _roundRepository.GetByIdAsync(request.RoundId);
             if (!Enum.TryParse<RoundResult>(request.CandidateStatus, true, out var result))
                 throw new CommonException(ResponseMessage.InvalidCandidateStatus);
@@ -119,7 +120,9 @@ namespace HireHub.Core.Service
             driveCandidate!.Status = (CandidateStatus)Enum.Parse(
                     typeof(CandidateStatus),
                     request.CandidateStatus!,
-                    true); 
+                    true);
+
+            driveCandidate!.StatusSetBy = UserId;
             await _saveRepository.SaveChangesAsync();
             var response = await _roundRepository.GetByIdAsDtoAsync(request.RoundId);
             return new() { Data = response };

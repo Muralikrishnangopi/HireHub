@@ -1218,7 +1218,7 @@ public class DriveController : ControllerBase
 
     public async Task<IActionResult> AutoAssignPanel([FromRoute] int driveId)
     {
-        _logger.LogInformation(LogMessage.StartMethod, nameof(driveId));
+        _logger.LogInformation(LogMessage.StartMethod, nameof(AutoAssignPanel));
         try
         {
             using (_transactionRepository.BeginTransaction())
@@ -1240,6 +1240,8 @@ public class DriveController : ControllerBase
                 }
                 var response = await _roundService.AutoPanelAssign(driveId);
                 _transactionRepository.CommitTransaction();
+                _logger.LogInformation(LogMessage.EndMethod, nameof(AutoAssignPanel));
+
                 //var response = await _roundService.AutoPanelAssign(driveId, currentUserId);
                 return Ok();
 
@@ -1288,6 +1290,8 @@ public class DriveController : ControllerBase
                 }
                 await _roundService.ReassignInterviewer(request.roundId, request.oldInterviewId, request.newInterviewerId);
                 _transactionRepository.CommitTransaction();
+                _logger.LogInformation(LogMessage.EndMethod, nameof(ReassignInterviewer));
+
                 return Ok();
             }
         }
@@ -1337,14 +1341,64 @@ public class DriveController : ControllerBase
                     );
                     return BadRequest(baseResponse);
                 }
-                var response =await _roundService.UpdateCandidateStatusAsync(request);
+                var response =await _roundService.UpdateCandidateStatusAsync(request,_userProvider.CurrentUserId);
                 _transactionRepository.CommitTransaction();
+                _logger.LogInformation(LogMessage.EndMethod, nameof(CandidateStatusUpdate));
+
                 return Ok(response);
             }
         }
         catch (CommonException ex)
         {
             _logger.LogWarning(LogMessage.EndMethodException, nameof(CandidateStatusUpdate), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
+    [RequireAuth([RoleName.Hr,RoleName.Admin])]
+    // [RequirePermission(UserAction.Drive, ActionType.Update)]
+    [HttpPut("DriveStart")]
+    [ProducesResponseType<Response<RoundDTO>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> DriveStart(DriveStatusUpdateRequest request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(DriveStart));
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new CandidateStatusUpdateRequestValidator(baseResponse.Warnings, _repoService, _userProvider)
+                    .ValidateAsync(request);
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+                var response = await _roundService.UpdateDriveStatusAsync(request);
+                _transactionRepository.CommitTransaction();
+                _logger.LogInformation(LogMessage.EndMethod, nameof(DriveStart));
+
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(DriveStart), ex.Message);
             _transactionRepository.RollbackTransaction();
             return BadRequest(new BaseResponse
             {
