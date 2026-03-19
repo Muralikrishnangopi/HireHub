@@ -475,7 +475,7 @@ public class CandidateController : ControllerBase
         }
         catch (CommonException ex)
         {
-            _logger.LogWarning(LogMessage.EndMethodException, ex.Message);
+            _logger.LogWarning(LogMessage.EndMethodException,nameof(GetPanelAssignedCandidates), ex.Message);
             return BadRequest(new BaseResponse()
             {
                 Errors = [

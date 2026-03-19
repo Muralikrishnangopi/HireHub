@@ -11,6 +11,6 @@ namespace HireHub.Core.DTO
         public int driveId {  get; set; }
 
         public int CandidateId { get; set; }
-        public  string attendanceStatus {  get; set; }
+        public  string? attendanceStatus {  get; set; }
     }
 }

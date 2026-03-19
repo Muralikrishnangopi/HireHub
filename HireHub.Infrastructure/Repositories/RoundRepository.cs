@@ -209,7 +209,7 @@ public async Task AssignNewInterview(Round round, int newInterviewerUserId)
     var newPanel = await _context.DriveMembers.FirstOrDefaultAsync(dm =>
         dm.DriveMemberId == newInterviewerUserId &&
         dm.RoleId == 3 &&
-        dm.DriveId == round.DriveCandidate.DriveId);
+        dm.DriveId == round.DriveCandidate!.DriveId);
 
     if (newPanel == null)
         throw new Exception("Invalid panel interviewer");
