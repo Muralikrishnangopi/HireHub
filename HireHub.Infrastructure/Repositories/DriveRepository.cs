@@ -395,6 +395,10 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
             .Where(dm => dm.UserId == userId && dm.DriveId == driveId).AnyAsync();
             
     }
+    public async Task<DriveCandidate?> GetDriveCandidateWithIdAsync(int driveCandidateId,CancellationToken cancellationToken=default)
+    {
+        return await _context.DriveCandidates.Where(x => x.DriveCandidateId == driveCandidateId).FirstOrDefaultAsync(cancellationToken);
+    }
 
     #endregion
 

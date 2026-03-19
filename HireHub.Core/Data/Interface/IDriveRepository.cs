@@ -8,7 +8,7 @@ namespace HireHub.Core.Data.Interface;
 public interface IDriveRepository : IGenericRepository<Drive>
 {
     #region DQL
-
+    Task<DriveCandidate?> GetDriveCandidateWithIdAsync(int driveCandidateId,CancellationToken cancellationToken=default);
     Task<int> CountDrivesAsync(DriveStatus? driveStatus, CancellationToken cancellationToken = default);
 
     Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default);

@@ -4,7 +4,7 @@ namespace HireHub.Core.Data.Filters;
 
 public class DriveCandidateFilter
 {
-    public int? DriveId { get; set; }
+    public int? DriveId { get; set; }   
     public int? CandidateId { get; set; }
     public CandidateStatus? CandidateStatus { get; set; }
     public DriveStatus? DriveStatus { get; set; }

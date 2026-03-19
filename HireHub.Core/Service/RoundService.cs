@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
@@ -103,6 +104,19 @@ namespace HireHub.Core.Service
             _logger.LogInformation(LogMessage.EndMethod, nameof(MovetoNextRoundAsync));
 
             return new Response<RoundDTO>{ Data = response };
+
+        }
+        public async Task<Response<RoundDTO>> UpdateCandidateStatusAsync(CandidateStatusUpdateRequest request)
+        {
+            _logger.LogInformation(LogMessage.StartMethod,nameof(UpdateCandidateStatusAsync));
+            var round = await _roundRepository.GetByIdAsync(request.RoundId);
+            round!.Status = (RoundStatus)Enum.Parse(typeof(RoundStatus), request.CandidateStatus!, true);
+            var driveCandidate = await _driveRepository.GetDriveCandidateWithIdAsync(round.DriveCandidateId);
+            driveCandidate!.Status = (CandidateStatus)Enum.Parse(typeof(CandidateStatus), request.CandidateStatus!, true);
+            await _saveRepository.SaveChangesAsync();
+            var response = await _roundRepository.GetByIdAsDtoAsync(request.RoundId);
+            _logger.LogInformation(LogMessage.EndMethod,nameof(UpdateCandidateStatusAsync));
+            return new() { Data = response };
 
         }
     }

@@ -92,6 +92,7 @@ public static class ResponseMessage
     public const string CannotRemoveMembersOnStartedDrive = "Cannot remove Members on a started Drive";
     public const string InvalidCandidateStatus = "Invalid Candidate Status";
     public const string CandidateIdRequired = "CandidateId is required";
+    public const string CandidateStatusIsRequired = "Candidate Status is required";
     public const string CandidateStatusCannotChangeToPending = "CandidateStatus cannot be change to Pending";
     public const string DriveNeedToStartFirst = "Drive need to be start first";
     public const string InvalidRoundType = "Invalid Round Type";
