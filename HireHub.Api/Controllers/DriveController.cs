@@ -1096,9 +1096,9 @@ public class DriveController : ControllerBase
     [ProducesResponseType<Response<RoundDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
     [ProducesResponseType<ErrorResponse>(500)]
-    public async Task<IActionResult> DriveStart(DriveStatusUpdateRequest request)
+    public async Task<IActionResult> DriveStatusUpdate(DriveStatusUpdateRequest request)
     {
-        _logger.LogInformation(LogMessage.StartMethod, nameof(DriveStart));
+        _logger.LogInformation(LogMessage.StartMethod, nameof(DriveStatusUpdate));
         try
         {
             using (_transactionRepository.BeginTransaction())
@@ -1120,14 +1120,14 @@ public class DriveController : ControllerBase
                 }
                 var response = await _roundService.UpdateDriveStatusAsync(request);
                 _transactionRepository.CommitTransaction();
-                _logger.LogInformation(LogMessage.EndMethod, nameof(DriveStart));
+                _logger.LogInformation(LogMessage.EndMethod, nameof(DriveStatusUpdate));
 
                 return Ok(response);
             }
         }
         catch (CommonException ex)
         {
-            _logger.LogWarning(LogMessage.EndMethodException, nameof(DriveStart), ex.Message);
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(DriveStatusUpdate), ex.Message);
             _transactionRepository.RollbackTransaction();
             return BadRequest(new BaseResponse
             {
