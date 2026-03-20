@@ -82,13 +82,16 @@ public static class ResponseMessage
     public const string AdminOrDriveOwnerOrInterviewerCanEdit = "Admin or Drive Owner or Interviewer can able to edit";
     public const string DriveNameAlreadyExist = "Drive Name Already Exist";
     public const string DriveNameCannotBeChange = "Drive Name cannot be change";
+    public const string DriveStatusIsRequired = "Drive Status is required";
     public const string DriveDateCannotBeChange = "Drive Date cannot be change";
     public const string DriveTechnicalRoundsCannotBeChange = "Drive Technical Rounds cannot be change";
     public const string FutureDateOnlyAllowed = "Future Date only allowed";
     public const string TechRoundsShouldBe = "Technical Rounds should be 1 or 2";
     public const string InvalidDriveStatus = "Invalid Drive Status";
+    public const string DriveStatusCannotBeChangeToStarted= "Drive can be started only from InProposal state";
     public const string DriveStatusCannotChangeToInproposal = "DriveStatus cannot be change to InProposal";
-    public const string DriveCannotStartedBeforeScheduledDate = "Drive cannot be started before the scheduled date";
+    public const string DriveCannotStartedBeforeScheduledDate = "Drive cannot be started before or after the scheduled date";
+    public const string DriveRoundResultArePending= "All candidate results must be updated before completing the drive";
     public const string CannotRemoveMembersOnStartedDrive = "Cannot remove Members on a started Drive";
     public const string InvalidCandidateStatus = "Invalid Candidate Status";
     public const string CandidateIdRequired = "CandidateId is required";
@@ -118,6 +121,7 @@ public static class ResponseMessage
     public const string OnlyPanelCanViewAssignedCandidates="Only panel members can view assigned candidates";
     public const string Unauthorized="Umauthorished person to enter this page";
     public const string InvalidDrive = "Invalid drive.";
+    public const string DriveCannotbeCancelled="Drive can be cancelled only in InProposal state";
     public const string InvalidCandidate = "Invalid candidate.";
     public const string AttendanceNotAllowed =
         "Attendance allowed only for today's active drive.";

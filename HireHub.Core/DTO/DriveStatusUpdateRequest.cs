@@ -9,5 +9,6 @@ namespace HireHub.Core.DTO
     public class DriveStatusUpdateRequest
     {
         public int DriveId {  get; set; }
+        public string? DriveStatus {  get; set; }
     }
 }

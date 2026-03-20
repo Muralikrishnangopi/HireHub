@@ -1,7 +1,9 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
+using HireHub.Core.Data.Filters;
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
@@ -68,16 +70,19 @@ namespace HireHub.Core.Service
 
         public async Task ReassignInterviewer(int roundId, int oldInterviewerId, int newInterviewerId)
         {
+            _logger.LogInformation(LogMessage.StartMethod, nameof(AutoPanelAssign));
             var round = await _roundRepository
                     .GetOldInterviewer(roundId, oldInterviewerId);
 
             if (round == null)
-                throw new Exception("Interviewer not yet assigned");
+                throw new CommonException(ResponseMessage.InvalidRoundId);
 
             await _roundRepository
                 .AssignNewInterview(round, newInterviewerId);
 
             await _saveRepository.SaveChangesAsync();
+            _logger.LogInformation(LogMessage.EndMethod, nameof(AutoPanelAssign));
+
 
         }
         public async Task<Response<RoundDTO>> MovetoNextRoundAsync(MovetoNextRoundRequest movetoNextRoundRequest)
@@ -127,6 +132,42 @@ namespace HireHub.Core.Service
             var response = await _roundRepository.GetByIdAsDtoAsync(request.RoundId);
             return new() { Data = response };
 
+        }
+        public async Task<Response<DriveDTO>> UpdateDriveStatusAsync(DriveStatusUpdateRequest request)
+        {
+            _logger.LogInformation(LogMessage.StartMethod, nameof(UpdateDriveStatusAsync));
+            var drive =await  _driveRepository.GetByIdAsync(request.DriveId);
+            if (!Enum.TryParse<DriveStatus>(request.DriveStatus, true, out var newStatus))
+                throw new CommonException(ResponseMessage.InvalidDriveStatus);
+            drive!.Status = newStatus;
+            var rounds =await  _roundRepository.GetAllAsync(new RoundFilter { DriveId = request.DriveId },CancellationToken.None);
+            switch (newStatus)
+            {
+                // START
+                case DriveStatus.Started:
+                    foreach (var round in rounds)
+                    {
+                        round.Status = RoundStatus.OnProcess;
+                    }
+                    break;
+
+                // COMPLETE
+                case DriveStatus.Completed:
+                   
+                    break;
+
+                // CANCEL
+                case DriveStatus.Cancelled:
+                    foreach (var round in rounds)
+                    {
+                        round.Status = RoundStatus.Skipped;
+                    }
+                    break;
+            }
+            await _saveRepository.SaveChangesAsync();
+            var response = Helper.Map<Drive, DriveDTO>(drive);
+            _logger.LogInformation(LogMessage.EndMethod, nameof(UpdateDriveStatusAsync));
+            return new() { Data = response };   
         }
     }
 }

@@ -283,7 +283,7 @@ public class CandidateController : ControllerBase
 
                 var currentuserId = int.Parse(_userProvider.CurrentUserId);
 
-                var response = await _candidateService.MarkAttendance(request.driveId, request.CandidateId, request.attendanceStatus, currentuserId);
+                var response = await _candidateService.MarkAttendance(request.driveId, request.CandidateId, request.attendanceStatus!, currentuserId);
 
 
 

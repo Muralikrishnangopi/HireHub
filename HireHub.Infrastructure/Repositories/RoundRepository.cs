@@ -60,6 +60,15 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
         return await rQuery.ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> AreAllRoundsEvaluatedAsync(int driveId,CancellationToken cancellationToken=default)
+    {
+        return !await _context.Rounds
+            .AnyAsync(r =>
+                r.DriveCandidate != null &&
+                r.DriveCandidate.DriveId == driveId &&
+                r.Result == RoundResult.Pending);
+    }
+
     public async Task<List<RoundDTO>> GetAllAsDtoAsync(RoundFilter filter, CancellationToken cancellationToken = default)
     {
         var dQuery = _context.Drives.Select(e => e);
