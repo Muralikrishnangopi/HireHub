@@ -62,6 +62,8 @@ public class CandidateDTO
     public string? LinkedInUrl { get; set; }
     public string? GitHubUrl { get; set; }
     public DateTime CreatedDate { get; set; }
+
+    public string? roleName { get; set; }
 }
 
 public class DriveDTO
@@ -74,6 +76,8 @@ public class DriveDTO
     public int CreatedBy { get; set; }
     public string CreatorName { get; set; } = null!;
     public DateTime CreatedDate { get; set; }
+    public string? roleName { get; set; }
+
 }
 
 public class HrConfigurationDTO

@@ -29,7 +29,10 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
 
     public async Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default)
     {
-        var query = _context.Drives.Include(e => e.Creator).Select(u => u);
+        var query = _context.Drives
+            .Include(e => e.Creator)
+                .ThenInclude(u=>u.Role)
+            .Select(u => u);
 
         if (filter.Status != null)
             query = query

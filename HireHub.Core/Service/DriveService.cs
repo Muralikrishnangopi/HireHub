@@ -76,10 +76,16 @@ public class DriveService
         var drive = await _driveRepository.GetByIdAsync(driveId) ??
             throw new CommonException(ResponseMessage.DriveNotFound);
 
+        var user = await _userRepository.GetByIdAsync(drive.CreatedBy,CancellationToken.None)??
+            throw new CommonException(ResponseMessage.DriveNotFound);
+
+        var role = await _roleRepository.GetByIdAsync(user.RoleId, CancellationToken.None);
+           
+
         var driveDTO = Helper.Map<Drive, DriveDTO>(drive);
         driveDTO.DriveStatus = drive.Status.ToString();
         driveDTO.CreatorName = (await _userRepository.GetByIdAsync(drive.CreatedBy))!.FullName;
-
+        driveDTO.roleName = role!.RoleName.ToString();
         _logger.LogInformation(LogMessage.EndMethod, nameof(GetDrive));
 
         return new() { Data = driveDTO };
@@ -774,6 +780,7 @@ public class DriveService
             var driveDTO = Helper.Map<Drive, DriveDTO>(drive);
             driveDTO.CreatorName = drive.Creator!.FullName;
             driveDTO.DriveStatus = drive.Status.ToString();
+            driveDTO.roleName = drive.Creator.Role != null ? drive.Creator.Role.RoleName.ToString() : null; 
             driveDTOs.Add(driveDTO);
         });
         return driveDTOs;
