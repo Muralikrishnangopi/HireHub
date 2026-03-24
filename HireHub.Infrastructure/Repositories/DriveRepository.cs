@@ -27,6 +27,34 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         return await query.CountAsync(cancellationToken);
     }
 
+    public async Task<List<CandidateFeedbackDto>> GetCandidateFeedbackDetailsAsync(
+        int candidateId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Rounds
+            .Where(r => r.DriveCandidate != null &&
+                        r.DriveCandidate.CandidateId == candidateId &&
+                        r.Feedback != null)
+            .Select(r => new CandidateFeedbackDto
+            {
+                RoundId = r.RoundId,
+                RoundType = r.RoundType.ToString(),
+                Result = r.Result.ToString(),
+
+                FeedbackId = r.Feedback!.FeedbackId,
+                OverallRating = r.Feedback.OverallRating,
+                TechnicalSkill = r.Feedback.TechnicalSkill,
+                Communication = r.Feedback.Communication,
+                ProblemSolving = r.Feedback.ProblemSolving,
+                OverallFeedback = r.Feedback.OverallFeedback,
+                Recommendation = r.Feedback.Recommendation,
+                SubmittedDate = r.Feedback.SubmittedDate
+            })
+            .OrderBy(x => x.SubmittedDate);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.Drives

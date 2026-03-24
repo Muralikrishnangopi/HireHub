@@ -38,11 +38,15 @@ public interface IDriveRepository : IGenericRepository<Drive>
     Task<List<DriveCandidateDTO>> GetDriveCandidatesAsDtoAsync(DriveCandidateFilter filter, CancellationToken cancellationToken = default);
     
     Task<List<Drive>> GetMentorDrivesWithCandidatesAsync(int mentorId,CancellationToken cancellationToken = default);
-	#endregion
 
-	#region DML
+    Task<List<CandidateFeedbackDto>> GetCandidateFeedbackDetailsAsync(
+        int candidateId,
+        CancellationToken cancellationToken = default);
+    #endregion
 
-	void RemoveDriveMember(DriveMember driveMember);
+    #region DML
+
+    void RemoveDriveMember(DriveMember driveMember);
     void RemoveDriveCandidate(DriveCandidate driveCandidate);
 
     #endregion

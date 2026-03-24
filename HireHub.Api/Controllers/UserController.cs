@@ -41,7 +41,7 @@ public class UserController : ControllerBase
 
     #region Get API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpGet("fetch/all")]
     [ProducesResponseType<Response<List<UserDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -81,7 +81,7 @@ public class UserController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpGet("fetch/{userId:int}")]
     [ProducesResponseType<Response<UserDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -232,7 +232,7 @@ public class UserController : ControllerBase
 
     #region Post API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpPost("add")]
     [ProducesResponseType<Response<UserDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]

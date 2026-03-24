@@ -223,6 +223,34 @@ public class DriveService
         return new() { Data = feedbackDTO };
     }
 
+    public async Task<Response<List<CandidateFeedbackDto>>> GetCandidateFeedbackDetailsAsync(
+    int candidateId,
+    CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetCandidateFeedbackDetailsAsync));
+
+        var feedback = await _driveRepository.GetCandidateFeedbackDetailsAsync(candidateId, cancellationToken);
+
+        if (feedback == null)
+        {
+            _logger.LogWarning("No feedback found for CandidateId: {CandidateId}", candidateId);
+
+            return new Response<List<CandidateFeedbackDto>>
+            {
+                Data = new List<CandidateFeedbackDto>(),
+
+            };
+        }
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetCandidateFeedbackDetailsAsync));
+
+
+        return new Response<List<CandidateFeedbackDto>>
+        {
+            Data = feedback,
+        };
+
+    }
+
     #endregion
 
     #region Command Services

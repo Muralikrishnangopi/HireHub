@@ -131,7 +131,7 @@ public class CandidateController : ControllerBase
 
     #region Post API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpPost("add")]
     [ProducesResponseType<Response<CandidateDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -189,7 +189,7 @@ public class CandidateController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpPost("upload/bulk")]
     [ProducesResponseType<Response<List<int>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -307,7 +307,7 @@ public class CandidateController : ControllerBase
         }
     }
 
-    [RequireAuth([RoleName.Mentor])]
+    [RequireAuth([RoleName.Mentor,RoleName.Hr])]
     [HttpPost("candidate/reassignment")]
     [ProducesResponseType<HireHub.Core.DTO.Response<RequestReassignmentDto>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -377,7 +377,7 @@ public class CandidateController : ControllerBase
 
     #region Put API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpPut("edit")]
     [ProducesResponseType<Response<CandidateDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]

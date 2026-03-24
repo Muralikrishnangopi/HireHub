@@ -51,7 +51,7 @@ public class DriveController : ControllerBase
 
     #region Get API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.View)]
     [HttpGet("fetch/all")]
     [ProducesResponseType<Response<List<DriveDTO>>>(200)]
@@ -94,7 +94,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.View)]
     [HttpGet("fetch/{driveId:int}")]
     [ProducesResponseType<Response<DriveDTO>>(200)]
@@ -127,7 +127,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.View)]
     [HttpGet("config/fetch/{driveId:int}")]
     [ProducesResponseType<Response<DriveConfigDTO>>(200)]
@@ -295,7 +295,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.View)]
     [HttpGet("round/fetch/{interviewRoundId:int}")]
     [ProducesResponseType<Response<RoundDTO>>(200)]
@@ -328,7 +328,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.View)]
     [HttpGet("feedback/fetch/{feedbackId:int}")]
     [ProducesResponseType<Response<FeedbackDTO>>(200)]
@@ -360,6 +360,39 @@ public class DriveController : ControllerBase
         }
     }
 
+    [RequireAuth([RoleName.Admin, RoleName.Mentor, RoleName.Hr, RoleName.Panel])]
+    //[RequirePermission(UserAction.Drive, ActionType.View)]
+    [HttpGet("candidate/feedback/fetch/{CandidateId:int}")]
+    [ProducesResponseType<Response<CandidateFeedbackDto>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ContentResult>(401)]
+    [ProducesResponseType<ContentResult>(403)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> GetFeedbackParticularCandidate([FromRoute] int CandidateId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetFeedbackParticularCandidate));
+
+        try
+        {
+            var response = await _driveService.GetCandidateFeedbackDetailsAsync(CandidateId);
+
+            _logger.LogInformation(LogMessage.EndMethod, nameof(GetFeedbackParticularCandidate));
+
+            return Ok(response);
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(GetFeedbackParticularCandidate), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+
+    }
+
 
     [HttpGet("candidate/template/bulk-upload")]
     [ProducesResponseType<FileContentResult>(200)]
@@ -378,7 +411,7 @@ public class DriveController : ControllerBase
 
     #region Post API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Add)]
     [HttpPost("create")]
     [ProducesResponseType<Response<DriveDTO>>(200)]
@@ -437,7 +470,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPost("candidates/add")]
     [ProducesResponseType<Response<List<int>>>(200)]
@@ -507,7 +540,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPost("candidate/upload/bulk")]
     [ProducesResponseType<Response<List<int>>>(200)]
@@ -614,7 +647,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPost("member/add")]
     [ProducesResponseType<Response<DriveMemberDTO>>(200)]
@@ -792,7 +825,7 @@ public class DriveController : ControllerBase
 
     #region Put API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPut("edit")]
     [ProducesResponseType<Response<DriveDTO>>(200)]
@@ -851,7 +884,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPut("config/edit")]
     [ProducesResponseType<Response<DriveConfigDTO>>(200)]
@@ -910,7 +943,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPut("candidate/edit")]
     [ProducesResponseType<Response<DriveCandidateDTO>>(200)]
@@ -970,7 +1003,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpPut("round/edit")]
     [ProducesResponseType<Response<RoundDTO>>(200)]
@@ -1142,7 +1175,7 @@ public class DriveController : ControllerBase
 
     #region Delete API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpDelete("member/remove")]
     [ProducesResponseType<Response<DriveMemberDTO>>(200)]
@@ -1201,7 +1234,7 @@ public class DriveController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [RequirePermission(UserAction.Drive, ActionType.Update)]
     [HttpDelete("candidates/remove")]
     [ProducesResponseType<Response<List<int>>>(200)]
