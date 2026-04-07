@@ -55,6 +55,15 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> IsDriveCandidateValidAsync(int driveId, int driveCandidateId)
+    {
+        return await _context.DriveCandidates
+            .AnyAsync(dc =>
+                dc.DriveId == driveId &&
+                dc.DriveCandidateId == driveCandidateId);
+    }
+
+
     public async Task<List<Drive>> GetAllAsync(DriveFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.Drives
@@ -336,7 +345,28 @@ public class DriveRepository : GenericRepository<Drive>, IDriveRepository
 
         return await query.ToListAsync(cancellationToken);
     }
+    public async Task<List<CandidateDTO>> GetCandidatesWithoutRoundsAsync(
+        int driveId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.DriveCandidates
+            .Where(dc => dc.DriveId == driveId)
 
+            .Where(dc => !_context.Rounds
+                .Any(r => r.DriveCandidateId == dc.DriveCandidateId))
+
+            .Select(dc => new CandidateDTO
+            {
+                CandidateId = dc.Candidate!.CandidateId,
+                FullName = dc.Candidate.FullName,
+                Email = dc.Candidate.Email,
+                Phone = dc.Candidate.Phone,
+                TechStack=dc.Candidate.TechStack,
+                CandidateExperienceLevel = dc.Candidate.ExperienceLevel.ToString()
+            });
+
+        return await query.ToListAsync(cancellationToken);
+    }
     public async Task<List<DriveCandidateDTO>> GetDriveCandidatesAsDtoAsync(DriveCandidateFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _context.DriveCandidates.Select(dc => dc);

@@ -379,6 +379,64 @@ public class DriveService
         return new() { Data = driveCandidates.Select(e => e.DriveCandidateId).ToList() };
     }
 
+    public async Task<Response<List<CandidateDTO>>> GetCandidatesWithoutRoundsAsync(
+int driveId,
+CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetCandidatesWithoutRoundsAsync));
+
+        var data = await _driveRepository.GetCandidatesWithoutRoundsAsync(driveId, cancellationToken);
+
+        if (data == null || !data.Any())
+        {
+            return new Response<List<CandidateDTO>>
+            {
+                Data = new List<CandidateDTO>()
+            };
+        }
+
+        _logger.LogInformation(LogMessage.EndMethod, nameof(GetCandidatesWithoutRoundsAsync));
+
+        return new Response<List<CandidateDTO>>
+        {
+            Data = data
+        };
+    }
+
+    public async Task<Response<RoundDTO>> ManualAssignmentCandidate(ManualAssignmentCandidate request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(ManualAssignmentCandidate));
+
+        var drivemember = await _userRepository.GetDriveMemberAsync(request.driveId, request.userId);
+        if (drivemember == null)
+        {
+            throw new CommonException(ResponseMessage.DriveMemberNotFound);
+        }
+
+        var round = new Round
+        {
+            DriveCandidateId = request.driveCandidateId,
+            InterviewerId = drivemember.DriveMemberId,
+            RoundType = RoundType.Tech1,
+            Status = RoundStatus.Scheduled,
+            Result = RoundResult.Pending
+        };
+        await _roundRepository.AddAsync(round, CancellationToken.None);
+        await _saveRepository.SaveChangesAsync();
+
+        var response = new RoundDTO
+        {
+            RoundId = round.RoundId
+        };
+        _logger.LogInformation(LogMessage.EndMethod, nameof(ManualAssignmentCandidate));
+
+        return new()
+        {
+            Data = response
+        };
+
+    }
+
 
     public async Task<Response<DriveMemberDTO>> AddMemberToDriveAsync(AddMemberToDriveRequest request)
     {

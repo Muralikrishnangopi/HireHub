@@ -19,6 +19,8 @@ public interface IUserRepository : IGenericRepository<User>
 
     Task<bool> IsUserWithEmailOrPhoneExist(string email, string phone);
 
+    Task<bool> IsUserPanelForDriveAsync(int driveId, int userId);
+    Task<DriveMember> GetDriveMemberAsync(int driveId, int userId);
     Task<List<PanelUserProjection>> GetPanelUsersByUserIdAsync(int userId);
     #endregion
 

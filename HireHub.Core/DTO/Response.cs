@@ -64,6 +64,8 @@ public class CandidateDTO
     public DateTime CreatedDate { get; set; }
 
     public string? roleName { get; set; }
+
+    public int? driveCandidateId { get; set; }
 }
 
 public class DriveDTO

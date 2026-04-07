@@ -42,7 +42,7 @@ public class CandidateController : ControllerBase
 
     #region Get API's
 
-    [RequireAuth([RoleName.Admin])]
+    [RequireAuth([RoleName.Admin,RoleName.Hr])]
     [HttpGet("fetch/all")]
     [ProducesResponseType<Response<List<CandidateDTO>>>(200)]
     [ProducesResponseType<BaseResponse>(400)]
@@ -96,7 +96,7 @@ public class CandidateController : ControllerBase
     }
 
 
-    [RequireAuth([RoleName.Admin,RoleName.Panel])]
+    [RequireAuth([RoleName.Admin,RoleName.Panel,RoleName.Hr])]
     [HttpGet("fetch/{candidateId:int}")]
     [ProducesResponseType<Response<CandidateDTO>>(200)]
     [ProducesResponseType<BaseResponse>(400)]

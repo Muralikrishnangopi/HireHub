@@ -27,6 +27,14 @@ public class RoundRepository : GenericRepository<Round>, IRoundRepository
         return await query.CountAsync(cancellationToken);
     }
 
+    public async Task<bool> IsDuplicateAssignmentAsync(int driveCandidateId, int userId)
+    {
+        return await _context.Rounds
+            .AnyAsync(r =>
+                r.DriveCandidateId == driveCandidateId &&
+                r.Interviewer!.UserId == userId);
+    }
+
     public async Task<List<Round>> GetAllAsync(RoundFilter filter, CancellationToken cancellationToken = default)
     {
         var dQuery = _context.Drives.Select(e => e);

@@ -2,6 +2,7 @@
 using HireHub.Core.Data.Interface;
 using HireHub.Core.Data.Models;
 using HireHub.Core.DTO;
+using HireHub.Core.Utils.Common;
 using HireHub.Shared.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -79,6 +80,28 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     public async Task<bool> IsUserWithEmailOrPhoneExist(string email, string phone)
     {
         return await _context.Users.AnyAsync(e => e.Email == email || e.Phone == phone);
+    }
+    public async Task<DriveMember> GetDriveMemberAsync(int driveId, int userId)
+    {
+        var driveMember = await _context.DriveMembers
+            .FirstOrDefaultAsync(dm =>
+                dm.UserId == userId &&
+                dm.DriveId == driveId &&
+                dm.RoleId == 3);
+
+        if (driveMember == null)
+            throw new Exception(ResponseMessage.DriveMemberNotFound);
+
+        return driveMember;
+    }
+
+    public async Task<bool> IsUserPanelForDriveAsync(int driveId, int userId)
+    {
+        return await _context.DriveMembers
+            .AnyAsync(dm =>
+                dm.UserId == userId &&
+                dm.DriveId == driveId &&
+                dm.RoleId == 3);
     }
 
     public async Task<List<PanelUserProjection>> GetPanelUsersByUserIdAsync(int userId)

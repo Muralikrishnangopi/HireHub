@@ -35,8 +35,8 @@ public interface IRoundRepository : IGenericRepository<Round>
 
 
     Task AssignNewInterview(Round round, int newInterviewerUserId);
-    
 
+    Task<bool> IsDuplicateAssignmentAsync(int driveCandidateId, int userId);
     #endregion
 
     #region DML

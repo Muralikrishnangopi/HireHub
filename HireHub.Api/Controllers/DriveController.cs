@@ -407,6 +407,39 @@ public class DriveController : ControllerBase
         );
     }
 
+    [RequireAuth([RoleName.Admin, RoleName.Hr])]
+    //[RequirePermission(UserAction.Drive, ActionType.View)]
+    [HttpGet("candidate/NotAssigned/rounds/{driveId:int}")]
+    [ProducesResponseType<Response<CandidateFeedbackDto>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ContentResult>(401)]
+    [ProducesResponseType<ContentResult>(403)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> GetNotAssignedRoundCandidate([FromRoute] int driveId)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(GetNotAssignedRoundCandidate));
+
+        try
+        {
+            var response = await _driveService.GetCandidatesWithoutRoundsAsync(driveId);
+
+            _logger.LogInformation(LogMessage.EndMethod, nameof(GetNotAssignedRoundCandidate));
+
+            return Ok(response);
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(GetNotAssignedRoundCandidate), ex.Message);
+            return BadRequest(new BaseResponse()
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+
+    }
+
     #endregion
 
     #region Post API's
@@ -811,6 +844,62 @@ public class DriveController : ControllerBase
         catch (CommonException ex)
         {
             _logger.LogWarning(LogMessage.EndMethodException, nameof(AddFeedback), ex.Message);
+            _transactionRepository.RollbackTransaction();
+            return BadRequest(new BaseResponse
+            {
+                Errors = [
+                    new ValidationError { PropertyName = PropertyName.Main, ErrorMessage = ex.Message }
+                ]
+            });
+        }
+    }
+
+    [RequireAuth([RoleName.Admin, RoleName.Hr])]
+    [RequirePermission(UserAction.Drive, ActionType.Update)]
+    [HttpPost("manual/assign/candidate/add")]
+    [ProducesResponseType<Response<RoundDTO>>(200)]
+    [ProducesResponseType<BaseResponse>(400)]
+    [ProducesResponseType<ContentResult>(401)]
+    [ProducesResponseType<ContentResult>(403)]
+    [ProducesResponseType<ErrorResponse>(500)]
+    public async Task<IActionResult> ManualAssignment([FromBody] ManualAssignmentCandidate request)
+    {
+        _logger.LogInformation(LogMessage.StartMethod, nameof(ManualAssignment));
+
+        try
+        {
+            using (_transactionRepository.BeginTransaction())
+            {
+                var baseResponse = new BaseResponse();
+
+                var validator = await new ManualAssignmentCandidateValidator(baseResponse.Warnings, _repoService, _userProvider).ValidateAsync(request);
+
+                if (!validator.IsValid)
+                {
+                    validator.Errors.ForEach(e =>
+                        baseResponse.Errors.Add(new ValidationError
+                        {
+                            PropertyName = e.PropertyName,
+                            ErrorMessage = e.ErrorMessage
+                        })
+                    );
+                    return BadRequest(baseResponse);
+                }
+
+                var response = await _driveService.ManualAssignmentCandidate(request);
+
+                baseResponse.Warnings.ForEach(response.Warnings.Add);
+
+                _transactionRepository.CommitTransaction();
+
+                _logger.LogInformation(LogMessage.EndMethod, nameof(ManualAssignment));
+
+                return Ok(response);
+            }
+        }
+        catch (CommonException ex)
+        {
+            _logger.LogWarning(LogMessage.EndMethodException, nameof(ManualAssignment), ex.Message);
             _transactionRepository.RollbackTransaction();
             return BadRequest(new BaseResponse
             {

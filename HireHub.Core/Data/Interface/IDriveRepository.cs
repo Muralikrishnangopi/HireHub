@@ -42,6 +42,11 @@ public interface IDriveRepository : IGenericRepository<Drive>
     Task<List<CandidateFeedbackDto>> GetCandidateFeedbackDetailsAsync(
         int candidateId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> IsDriveCandidateValidAsync(int driveId, int driveCandidateId);
+    Task<List<CandidateDTO>> GetCandidatesWithoutRoundsAsync(
+        int driveId,
+        CancellationToken cancellationToken = default);
     #endregion
 
     #region DML
